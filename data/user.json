@@ -35,5 +35,13 @@
     "id": "36a1d8e3-d72d-4a9e-a25c-d9932be04de9",
     "createdAt": "2025-09-11T20:16:54.422Z",
     "updatedAt": "2025-09-11T20:16:54.422Z"
+  },
+  {
+    "name": "Test User 1757623993234",
+    "email": "test1757623993234@example.com",
+    "role": "user",
+    "id": "cde11f86-dc7f-4686-9501-e9db034c4e63",
+    "createdAt": "2025-09-11T20:53:19.801Z",
+    "updatedAt": "2025-09-11T20:53:19.801Z"
   }
 ]

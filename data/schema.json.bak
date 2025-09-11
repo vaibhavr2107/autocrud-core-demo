@@ -186,5 +186,73 @@
     "id": "abf5ec6f-c48e-4b51-bd9b-60e32ba5fae0",
     "createdAt": "2025-09-11T20:43:09.696Z",
     "updatedAt": "2025-09-11T20:43:09.696Z"
+  },
+  {
+    "name": "example",
+    "definition": {
+      "name": "example",
+      "primaryKey": {
+        "name": "id",
+        "auto": true,
+        "strategy": "uuid",
+        "type": "string"
+      },
+      "timestamps": true,
+      "fields": {
+        "id": {
+          "type": "string",
+          "required": true
+        },
+        "email": {
+          "type": "string",
+          "required": true
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "default": "user"
+        }
+      }
+    },
+    "isActive": true,
+    "id": "25c87b26-372b-4509-91ac-6d89cb6e8508",
+    "createdAt": "2025-09-11T20:51:31.933Z",
+    "updatedAt": "2025-09-11T20:51:31.933Z"
+  },
+  {
+    "name": "example",
+    "definition": {
+      "name": "example",
+      "primaryKey": {
+        "name": "id",
+        "auto": true,
+        "strategy": "uuid",
+        "type": "string"
+      },
+      "timestamps": true,
+      "fields": {
+        "id": {
+          "type": "string",
+          "required": true
+        },
+        "email": {
+          "type": "string",
+          "required": true
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "default": "user"
+        }
+      }
+    },
+    "isActive": true,
+    "id": "44e0fca4-4609-4874-b00e-34921b6251ea",
+    "createdAt": "2025-09-11T20:52:14.888Z",
+    "updatedAt": "2025-09-11T20:52:14.888Z"
   }
 ]
