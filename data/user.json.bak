@@ -1,0 +1,10 @@
+[
+  {
+    "email": "test@example.com",
+    "name": "Test User",
+    "role": "admin",
+    "id": "66f64cb9-48da-428c-9147-3983fb05ec37",
+    "createdAt": "2025-09-11T19:29:07.309Z",
+    "updatedAt": "2025-09-11T19:29:07.309Z"
+  }
+]

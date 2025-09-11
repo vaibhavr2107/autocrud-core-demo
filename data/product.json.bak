@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Test Product",
+    "description": "A test product",
+    "price": 2999,
+    "category": "Electronics",
+    "inStock": true,
+    "id": 100,
+    "createdAt": "2025-09-11T19:29:08.443Z",
+    "updatedAt": "2025-09-11T19:29:08.443Z"
+  }
+]

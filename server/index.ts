@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
+import { buildAutoCRUD } from "autocrud-core";
 import { setupVite, serveStatic, log } from "./vite";
+import config from "./autocrud.config";
 
 const app = express();
 app.use(express.json());
@@ -37,7 +38,22 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  const server = await registerRoutes(app);
+  // Initialize AutoCRUD with existing Express app
+  const orch = await buildAutoCRUD({
+    ...config,
+    server: {
+      ...config.server,
+      existingApp: app
+    }
+  });
+
+  
+  // Start AutoCRUD (mounts routes to existing app)
+  await orch.start();
+
+  // Create HTTP server manually since we're using existing app
+  const { createServer } = await import("http");
+  const server = createServer(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -67,5 +83,7 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    log(`AutoCRUD REST API available at http://localhost:${port}/api`);
+    log(`AutoCRUD GraphQL API available at http://localhost:${port}/graphql`);
   });
 })();
