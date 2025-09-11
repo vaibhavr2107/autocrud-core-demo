@@ -59,5 +59,24 @@
     "id": 106,
     "createdAt": "2025-09-11T21:02:11.391Z",
     "updatedAt": "2025-09-11T21:02:11.391Z"
+  },
+  {
+    "name": "Test Product 1757624632837",
+    "description": "Test description for product 1757624632837",
+    "price": 283,
+    "category": "test",
+    "id": 107,
+    "createdAt": "2025-09-11T21:03:59.413Z",
+    "updatedAt": "2025-09-11T21:03:59.413Z"
+  },
+  {
+    "name": "Test Product 1757624681426",
+    "description": "Test description for product 1757624681426",
+    "price": 26,
+    "category": "test",
+    "inStock": true,
+    "id": 108,
+    "createdAt": "2025-09-11T21:04:48.003Z",
+    "updatedAt": "2025-09-11T21:04:48.003Z"
   }
 ]

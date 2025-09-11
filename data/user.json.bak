@@ -1,20 +1,5 @@
 [
   {
-    "email": "test@example.com",
-    "name": "Test User",
-    "role": "admin",
-    "id": "66f64cb9-48da-428c-9147-3983fb05ec37",
-    "createdAt": "2025-09-11T19:40:43.436Z",
-    "updatedAt": "2025-09-11T19:40:43.436Z"
-  },
-  {
-    "email": "test@graphql.com",
-    "name": "GraphQL Test User",
-    "id": "e5ee579f-732d-4b1d-b2b2-fe01155730b9",
-    "createdAt": "2025-09-11T20:11:09.962Z",
-    "updatedAt": "2025-09-11T20:11:09.962Z"
-  },
-  {
     "email": "newuser@example.com",
     "name": "New User",
     "id": "cb269a22-ddde-4497-9fd7-a3cc2084697f",
@@ -59,5 +44,21 @@
     "id": "897dcc9c-b65e-4a61-bc33-c21507c4670d",
     "createdAt": "2025-09-11T21:02:10.333Z",
     "updatedAt": "2025-09-11T21:02:10.333Z"
+  },
+  {
+    "name": "Test User 1757624631724",
+    "email": "test1757624631724@example.com",
+    "role": "user",
+    "id": "7add1d42-0405-4cb4-b307-6e96b01f5e2a",
+    "createdAt": "2025-09-11T21:03:58.300Z",
+    "updatedAt": "2025-09-11T21:03:58.300Z"
+  },
+  {
+    "name": "Test User 1757624680346",
+    "email": "test1757624680346@example.com",
+    "role": "user",
+    "id": "5770d555-6b46-4c70-9559-8c48b8d193c5",
+    "createdAt": "2025-09-11T21:04:46.930Z",
+    "updatedAt": "2025-09-11T21:04:46.930Z"
   }
 ]
