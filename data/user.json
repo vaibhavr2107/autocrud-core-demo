@@ -1,14 +1,6 @@
 [
   {
     "email": "test@example.com",
-    "name": "Updated via GraphQL",
-    "role": "admin",
-    "id": "66f64cb9-48da-428c-9147-3983fb05ec37",
-    "createdAt": "2025-09-11T19:40:43.436Z",
-    "updatedAt": "2025-09-11T20:13:05.458Z"
-  },
-  {
-    "email": "test@example.com",
     "name": "Test User",
     "role": "admin",
     "id": "66f64cb9-48da-428c-9147-3983fb05ec37",
@@ -59,5 +51,13 @@
     "id": "650c0443-06ec-4e47-adec-dcbf28c802ea",
     "createdAt": "2025-09-11T20:59:32.069Z",
     "updatedAt": "2025-09-11T20:59:32.069Z"
+  },
+  {
+    "name": "Test User 1757624523751",
+    "email": "test1757624523751@example.com",
+    "role": "user",
+    "id": "897dcc9c-b65e-4a61-bc33-c21507c4670d",
+    "createdAt": "2025-09-11T21:02:10.333Z",
+    "updatedAt": "2025-09-11T21:02:10.333Z"
   }
 ]

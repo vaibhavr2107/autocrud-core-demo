@@ -1,23 +1,5 @@
 [
   {
-    "name": "Test Schema",
-    "definition": {
-      "name": "test",
-      "fields": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      }
-    },
-    "isActive": true,
-    "id": "e0e1d084-f720-48e1-99e2-68a4039671b9",
-    "createdAt": "2025-09-11T20:00:06.824Z",
-    "updatedAt": "2025-09-11T20:01:03.652Z"
-  },
-  {
     "name": "example",
     "definition": {
       "name": "example",
@@ -294,5 +276,31 @@
     "id": "3b1eaa04-d7ad-426d-97c9-abd03bd36324",
     "createdAt": "2025-09-11T20:59:34.939Z",
     "updatedAt": "2025-09-11T20:59:34.939Z"
+  },
+  {
+    "name": "test_schema_1757624526750",
+    "definition": {
+      "name": "test_schema_1757624526750",
+      "primaryKey": {
+        "name": "id",
+        "auto": true,
+        "strategy": "uuid",
+        "type": "string"
+      },
+      "fields": {
+        "id": {
+          "type": "string",
+          "required": true
+        },
+        "name": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "isActive": true,
+    "id": "de35d8fb-d624-431b-a1cb-8d2db3907ade",
+    "createdAt": "2025-09-11T21:02:13.325Z",
+    "updatedAt": "2025-09-11T21:02:13.325Z"
   }
 ]
