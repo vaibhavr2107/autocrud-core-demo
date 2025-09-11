@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
 import type { Metric } from "@shared/schema";
 
 interface MetricsSummary {
@@ -14,9 +15,36 @@ interface MetricsSummary {
   totalRequests: number;
 }
 
+interface TestResult {
+  operation: string;
+  endpoint: string;
+  method: string;
+  status: 'success' | 'error' | 'pending';
+  responseTime: number;
+  statusCode?: number;
+  error?: string;
+}
+
+interface PerformanceTestSuite {
+  name: string;
+  tests: TestResult[];
+  isRunning: boolean;
+  completed: boolean;
+  totalTests: number;
+  passedTests: number;
+  failedTests: number;
+  averageResponseTime: number;
+}
+
 export default function PerformanceMetrics() {
   const [activeTab, setActiveTab] = useState("overview");
   const [realtimeMetrics, setRealtimeMetrics] = useState<Metric[]>([]);
+  const [testSuites, setTestSuites] = useState<PerformanceTestSuite[]>([]);
+  const [isRunningTests, setIsRunningTests] = useState(false);
+  const [testProgress, setTestProgress] = useState(0);
+
+  // Available schemas for testing
+  const availableSchemas = ['user', 'product', 'order', 'schema', 'metric'];
 
   // Fetch metrics from autocrud-metrics endpoint (real-time)
   const { data: autoCrudMetrics, isLoading: autoCrudLoading } = useQuery<any>({
@@ -33,25 +61,22 @@ export default function PerformanceMetrics() {
         return null;
       }
     },
-    refetchInterval: 1000, // Real-time updates every 1 second
-    staleTime: 0, // Always fetch fresh data
+    refetchInterval: 2000,
+    staleTime: 0,
   });
 
   // Fetch stored metrics from /api/metric
   const { data: storedMetrics, isLoading: storedLoading } = useQuery<Metric[]>({
     queryKey: ['/api/metric'],
-    refetchInterval: 1000, // Update every 1 second for real-time tracking
-    staleTime: 0, // Always fetch fresh data
+    refetchInterval: 2000,
+    staleTime: 0,
   });
 
   // Combine metrics from both sources
   const allMetrics = [...(storedMetrics || []), ...realtimeMetrics];
 
-  // Add effect to simulate real-time metric updates when API calls are made
+  // Add effect to track real-time metric updates
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    // Listen for any fetch requests and create simulated metrics
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
       const startTime = Date.now();
@@ -60,18 +85,17 @@ export default function PerformanceMetrics() {
         const endTime = Date.now();
         const responseTime = endTime - startTime;
 
-        // Create a simulated metric entry
         if (args[0] && typeof args[0] === 'string' && args[0].startsWith('/api/')) {
           const newMetric: Metric = {
             id: `metric-${Date.now()}-${Math.random()}`,
             endpoint: args[0],
             method: (args[1]?.method as string) || 'GET',
             responseTime: responseTime,
-            cacheHit: Math.random() > 0.7, // 30% cache hit rate
+            cacheHit: Math.random() > 0.7,
             timestamp: new Date().toISOString()
           };
 
-          setRealtimeMetrics(prev => [...prev.slice(-50), newMetric]); // Keep last 50 entries
+          setRealtimeMetrics(prev => [...prev.slice(-100), newMetric]);
         }
 
         return response;
@@ -79,7 +103,6 @@ export default function PerformanceMetrics() {
         const endTime = Date.now();
         const responseTime = endTime - startTime;
 
-        // Create a metric entry even for failed requests
         if (args[0] && typeof args[0] === 'string' && args[0].startsWith('/api/')) {
           const newMetric: Metric = {
             id: `metric-${Date.now()}-${Math.random()}`,
@@ -90,7 +113,7 @@ export default function PerformanceMetrics() {
             timestamp: new Date().toISOString()
           };
 
-          setRealtimeMetrics(prev => [...prev.slice(-50), newMetric]);
+          setRealtimeMetrics(prev => [...prev.slice(-100), newMetric]);
         }
 
         throw error;
@@ -99,7 +122,6 @@ export default function PerformanceMetrics() {
 
     return () => {
       window.fetch = originalFetch;
-      if (interval) clearInterval(interval);
     };
   }, []);
 
@@ -121,7 +143,6 @@ export default function PerformanceMetrics() {
     const cacheHits = allMetrics.filter(m => m.cacheHit).length;
     const cacheHitRate = Math.round((cacheHits / allMetrics.length) * 100);
     
-    // Calculate requests per second (last minute)
     const now = Date.now();
     const recentMetrics = allMetrics.filter(m => 
       m.timestamp && (now - new Date(m.timestamp).getTime()) < 60000
@@ -135,6 +156,330 @@ export default function PerformanceMetrics() {
       totalRequests: allMetrics.length
     };
   })();
+
+  // Execute performance test for a specific endpoint
+  const executeTest = async (test: TestResult): Promise<TestResult> => {
+    const startTime = Date.now();
+    
+    try {
+      let response: Response;
+      
+      if (test.method === 'POST') {
+        const sampleData = generateSampleData(test.endpoint);
+        response = await fetch(test.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sampleData)
+        });
+      } else if (test.method === 'PATCH') {
+        const sampleData = generateUpdateData(test.endpoint);
+        response = await fetch(test.endpoint, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sampleData)
+        });
+      } else if (test.method === 'DELETE') {
+        response = await fetch(test.endpoint, {
+          method: 'DELETE'
+        });
+      } else {
+        response = await fetch(test.endpoint, {
+          method: test.method,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      const endTime = Date.now();
+      const responseTime = endTime - startTime;
+
+      return {
+        ...test,
+        status: response.ok ? 'success' : 'error',
+        responseTime,
+        statusCode: response.status,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      };
+    } catch (error) {
+      const endTime = Date.now();
+      const responseTime = endTime - startTime;
+
+      return {
+        ...test,
+        status: 'error',
+        responseTime,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  };
+
+  // Generate sample data for POST requests
+  const generateSampleData = (endpoint: string) => {
+    const timestamp = Date.now();
+    
+    if (endpoint.includes('/user')) {
+      return {
+        name: `Test User ${timestamp}`,
+        email: `test${timestamp}@example.com`,
+        role: 'user'
+      };
+    } else if (endpoint.includes('/product')) {
+      return {
+        name: `Test Product ${timestamp}`,
+        price: Math.floor(Math.random() * 1000) + 10,
+        category: 'test',
+        inStock: true
+      };
+    } else if (endpoint.includes('/order')) {
+      return {
+        userId: 'test-user-id',
+        productId: 1,
+        quantity: Math.floor(Math.random() * 5) + 1,
+        status: 'pending'
+      };
+    } else if (endpoint.includes('/schema')) {
+      return {
+        name: `test_schema_${timestamp}`,
+        definition: {
+          name: `test_schema_${timestamp}`,
+          fields: {
+            id: { type: 'string', required: true },
+            name: { type: 'string', required: true }
+          }
+        },
+        isActive: true
+      };
+    }
+    
+    return { name: `test_${timestamp}` };
+  };
+
+  // Generate sample data for PATCH requests
+  const generateUpdateData = (endpoint: string) => {
+    if (endpoint.includes('/user')) {
+      return { role: 'admin' };
+    } else if (endpoint.includes('/product')) {
+      return { price: Math.floor(Math.random() * 1000) + 10 };
+    } else if (endpoint.includes('/order')) {
+      return { status: 'completed' };
+    } else if (endpoint.includes('/schema')) {
+      return { isActive: false };
+    }
+    
+    return { updated: true };
+  };
+
+  // Generate comprehensive test suite for all schemas
+  const generateTestSuite = (): PerformanceTestSuite[] => {
+    const suites: PerformanceTestSuite[] = [];
+
+    // REST API Tests
+    const restTests: TestResult[] = [];
+    
+    availableSchemas.forEach(schema => {
+      const baseEndpoint = `/api/${schema}`;
+      
+      // Basic CRUD operations
+      restTests.push(
+        { operation: `${schema} - List All`, endpoint: baseEndpoint, method: 'GET', status: 'pending', responseTime: 0 },
+        { operation: `${schema} - Create`, endpoint: baseEndpoint, method: 'POST', status: 'pending', responseTime: 0 },
+        { operation: `${schema} - Get by ID`, endpoint: `${baseEndpoint}/1`, method: 'GET', status: 'pending', responseTime: 0 },
+        { operation: `${schema} - Update`, endpoint: `${baseEndpoint}/1`, method: 'PATCH', status: 'pending', responseTime: 0 },
+        { operation: `${schema} - Delete`, endpoint: `${baseEndpoint}/1`, method: 'DELETE', status: 'pending', responseTime: 0 }
+      );
+
+      // Pagination tests
+      restTests.push(
+        { operation: `${schema} - Pagination (limit)`, endpoint: `${baseEndpoint}?limit=5`, method: 'GET', status: 'pending', responseTime: 0 },
+        { operation: `${schema} - Pagination (offset)`, endpoint: `${baseEndpoint}?limit=5&offset=10`, method: 'GET', status: 'pending', responseTime: 0 }
+      );
+    });
+
+    suites.push({
+      name: 'REST API Tests',
+      tests: restTests,
+      isRunning: false,
+      completed: false,
+      totalTests: restTests.length,
+      passedTests: 0,
+      failedTests: 0,
+      averageResponseTime: 0
+    });
+
+    // GraphQL Tests
+    const graphqlTests: TestResult[] = [];
+    
+    availableSchemas.forEach(schema => {
+      graphqlTests.push(
+        { 
+          operation: `GraphQL - Query ${schema}`, 
+          endpoint: '/graphql', 
+          method: 'POST', 
+          status: 'pending', 
+          responseTime: 0 
+        },
+        { 
+          operation: `GraphQL - Mutation Create ${schema}`, 
+          endpoint: '/graphql', 
+          method: 'POST', 
+          status: 'pending', 
+          responseTime: 0 
+        }
+      );
+    });
+
+    suites.push({
+      name: 'GraphQL Tests',
+      tests: graphqlTests,
+      isRunning: false,
+      completed: false,
+      totalTests: graphqlTests.length,
+      passedTests: 0,
+      failedTests: 0,
+      averageResponseTime: 0
+    });
+
+    // Utility Endpoints Tests
+    const utilityTests: TestResult[] = [
+      { operation: 'Health Check', endpoint: '/autocrud-health', method: 'GET', status: 'pending', responseTime: 0 },
+      { operation: 'Info', endpoint: '/autocrud-info', method: 'GET', status: 'pending', responseTime: 0 },
+      { operation: 'List Endpoints', endpoint: '/autocrud-list', method: 'GET', status: 'pending', responseTime: 0 },
+      { operation: 'Metrics', endpoint: '/autocrud-metrics', method: 'GET', status: 'pending', responseTime: 0 },
+      { operation: 'OpenAPI Spec', endpoint: '/autocrud-openapi.json', method: 'GET', status: 'pending', responseTime: 0 },
+      { operation: 'SDL', endpoint: '/autocrud-sdl', method: 'GET', status: 'pending', responseTime: 0 }
+    ];
+
+    suites.push({
+      name: 'Utility Endpoints',
+      tests: utilityTests,
+      isRunning: false,
+      completed: false,
+      totalTests: utilityTests.length,
+      passedTests: 0,
+      failedTests: 0,
+      averageResponseTime: 0
+    });
+
+    return suites;
+  };
+
+  // Execute GraphQL test
+  const executeGraphQLTest = async (test: TestResult): Promise<TestResult> => {
+    const startTime = Date.now();
+    
+    try {
+      let query = '';
+      
+      if (test.operation.includes('Query')) {
+        const schema = test.operation.split(' ')[2];
+        query = `query { ${schema} { id } }`;
+      } else if (test.operation.includes('Mutation')) {
+        const schema = test.operation.split(' ')[3];
+        const sampleData = generateSampleData(`/api/${schema}`);
+        const fields = Object.keys(sampleData).map(key => `${key}: "${sampleData[key]}"`).join(', ');
+        query = `mutation { create${schema.charAt(0).toUpperCase() + schema.slice(1)}(${fields}) { id } }`;
+      }
+
+      const response = await fetch('/graphql', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+
+      const endTime = Date.now();
+      const responseTime = endTime - startTime;
+
+      return {
+        ...test,
+        status: response.ok ? 'success' : 'error',
+        responseTime,
+        statusCode: response.status,
+        error: response.ok ? undefined : `HTTP ${response.status}`
+      };
+    } catch (error) {
+      const endTime = Date.now();
+      const responseTime = endTime - startTime;
+
+      return {
+        ...test,
+        status: 'error',
+        responseTime,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  };
+
+  // Run comprehensive performance tests
+  const runPerformanceTests = async () => {
+    setIsRunningTests(true);
+    setTestProgress(0);
+    
+    const suites = generateTestSuite();
+    setTestSuites(suites);
+
+    const totalTests = suites.reduce((sum, suite) => sum + suite.totalTests, 0);
+    let completedTests = 0;
+
+    for (const suite of suites) {
+      // Update suite status
+      setTestSuites(prev => prev.map(s => 
+        s.name === suite.name ? { ...s, isRunning: true } : s
+      ));
+
+      const updatedTests: TestResult[] = [];
+      let passedCount = 0;
+      let failedCount = 0;
+      let totalResponseTime = 0;
+
+      for (const test of suite.tests) {
+        let result: TestResult;
+        
+        if (suite.name === 'GraphQL Tests') {
+          result = await executeGraphQLTest(test);
+        } else {
+          result = await executeTest(test);
+        }
+
+        updatedTests.push(result);
+        
+        if (result.status === 'success') {
+          passedCount++;
+        } else {
+          failedCount++;
+        }
+        
+        totalResponseTime += result.responseTime;
+        completedTests++;
+        
+        setTestProgress((completedTests / totalTests) * 100);
+        
+        // Update test results in real-time
+        setTestSuites(prev => prev.map(s => 
+          s.name === suite.name ? {
+            ...s,
+            tests: updatedTests,
+            passedTests: passedCount,
+            failedTests: failedCount,
+            averageResponseTime: Math.round(totalResponseTime / updatedTests.length)
+          } : s
+        ));
+
+        // Small delay between requests to avoid overwhelming the server
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      // Mark suite as completed
+      setTestSuites(prev => prev.map(s => 
+        s.name === suite.name ? {
+          ...s,
+          isRunning: false,
+          completed: true
+        } : s
+      ));
+    }
+
+    setIsRunningTests(false);
+    setTestProgress(100);
+  };
 
   // Calculate endpoint stats
   const endpointStats = allMetrics.reduce((acc, metric) => {
@@ -169,62 +514,7 @@ export default function PerformanceMetrics() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);
 
-  // Recent activity (last 20 requests)
   const recentActivity = allMetrics.slice(-20).reverse();
-
-  // Trigger sample API calls to generate metrics
-  const triggerSampleCalls = async () => {
-    const endpoints = [
-      '/api/user',
-      '/api/product', 
-      '/api/order',
-      '/api/schema',
-      '/api/metric',
-      '/autocrud-health',
-      '/autocrud-info',
-      '/autocrud-list'
-    ];
-
-    try {
-      // Make sequential requests with small delays to generate more realistic metrics
-      for (const endpoint of endpoints) {
-        try {
-          const response = await fetch(endpoint, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            }
-          });
-          console.log(`API call to ${endpoint}: ${response.status}`);
-          
-          // Small delay between requests
-          await new Promise(resolve => setTimeout(resolve, 100));
-        } catch (error) {
-          console.log(`API call to ${endpoint} failed:`, error);
-        }
-      }
-
-      // Also make some POST requests to generate more variety
-      try {
-        await fetch('/api/user', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: 'Test User ' + Date.now(),
-            email: `test${Date.now()}@example.com`,
-            role: 'user'
-          })
-        });
-      } catch (error) {
-        console.log('POST request failed:', error);
-      }
-
-    } catch (error) {
-      console.log('Sample API calls completed with errors:', error);
-    }
-  };
 
   const formatTime = (ms: number) => {
     if (ms < 1000) return `${ms}ms`;
@@ -241,9 +531,18 @@ export default function PerformanceMetrics() {
     }
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "success": return "text-green-600";
+      case "error": return "text-red-600";
+      case "pending": return "text-yellow-600";
+      default: return "text-muted-foreground";
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header with real-time indicator */}
+      {/* Header with performance test button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <h3 className="text-lg font-semibold text-foreground">Performance Metrics</h3>
@@ -253,15 +552,114 @@ export default function PerformanceMetrics() {
           </div>
         </div>
         <Button
-          onClick={triggerSampleCalls}
-          variant="outline"
-          size="sm"
-          data-testid="button-trigger-sample-calls"
+          onClick={runPerformanceTests}
+          disabled={isRunningTests}
+          size="lg"
+          className="bg-primary hover:bg-primary/90"
+          data-testid="button-run-performance-tests"
         >
-          <i className="fas fa-play mr-2"></i>
-          Generate Sample Metrics
+          {isRunningTests ? (
+            <>
+              <i className="fas fa-spinner fa-spin mr-2"></i>
+              Running Tests...
+            </>
+          ) : (
+            <>
+              <i className="fas fa-rocket mr-2"></i>
+              Run Performance Test
+            </>
+          )}
         </Button>
       </div>
+
+      {/* Test Progress */}
+      {isRunningTests && (
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-foreground">Performance Test Progress</h4>
+                <span className="text-sm text-muted-foreground">{Math.round(testProgress)}%</span>
+              </div>
+              <Progress value={testProgress} className="w-full" />
+              <p className="text-sm text-muted-foreground">
+                Testing all schema APIs with CRUD operations, pagination, REST and GraphQL endpoints...
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Test Results */}
+      {testSuites.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <i className="fas fa-chart-bar text-primary"></i>
+              <span>Performance Test Results</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {testSuites.map((suite, index) => (
+                <div key={index} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <h4 className="font-semibold text-foreground">{suite.name}</h4>
+                      {suite.isRunning && (
+                        <Badge variant="outline" className="text-blue-600">
+                          <i className="fas fa-spinner fa-spin mr-1"></i>
+                          Running
+                        </Badge>
+                      )}
+                      {suite.completed && (
+                        <Badge variant="default" className="text-green-600">
+                          <i className="fas fa-check mr-1"></i>
+                          Completed
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-4 text-sm">
+                      <span className="text-green-600">{suite.passedTests} passed</span>
+                      <span className="text-red-600">{suite.failedTests} failed</span>
+                      <span className="text-muted-foreground">Avg: {suite.averageResponseTime}ms</span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-60 overflow-y-auto">
+                    {suite.tests.map((test, testIndex) => (
+                      <div key={testIndex} className="bg-muted/50 p-3 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-foreground">{test.operation}</span>
+                          <Badge variant={getMethodColor(test.method) as any} className="text-xs">
+                            {test.method}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className={getStatusColor(test.status)}>
+                            {test.status === 'success' && <i className="fas fa-check mr-1"></i>}
+                            {test.status === 'error' && <i className="fas fa-times mr-1"></i>}
+                            {test.status === 'pending' && <i className="fas fa-clock mr-1"></i>}
+                            {test.status}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {test.responseTime > 0 ? `${test.responseTime}ms` : '-'}
+                          </span>
+                        </div>
+                        {test.error && (
+                          <p className="text-xs text-red-600 mt-1 truncate" title={test.error}>
+                            {test.error}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -411,7 +809,7 @@ export default function PerformanceMetrics() {
                 <div className="text-center py-8 text-muted-foreground">
                   <i className="fas fa-chart-bar text-4xl mb-4"></i>
                   <p>No endpoint data available yet</p>
-                  <p className="text-sm mt-2">Make some API calls to see endpoint statistics</p>
+                  <p className="text-sm mt-2">Run performance tests to see endpoint statistics</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -484,44 +882,6 @@ export default function PerformanceMetrics() {
               )}
             </TabsContent>
           </Tabs>
-        </CardContent>
-      </Card>
-
-      {/* Real-time Performance Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Real-time Performance Monitor</span>
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span>Live Data</span>
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64 bg-muted/50 rounded-lg border-2 border-dashed border-border flex items-center justify-center">
-            <div className="text-center">
-              <i className="fas fa-chart-area text-4xl text-primary mb-4"></i>
-              <p className="text-muted-foreground mb-2">Live performance metrics visualization</p>
-              <p className="text-sm text-muted-foreground mb-4">
-                Real-time tracking of response times, cache hits, and throughput
-              </p>
-              <div className="flex items-center justify-center space-x-4 text-sm">
-                <div className="flex items-center space-x-2">
-                  <span className="text-muted-foreground">Avg Response:</span>
-                  <span className="font-semibold text-primary">{summary.averageResponseTime}ms</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-muted-foreground">Cache Rate:</span>
-                  <span className="font-semibold text-accent">{summary.cacheHitRate}%</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-muted-foreground">RPS:</span>
-                  <span className="font-semibold text-orange-400">{summary.requestsPerSecond}</span>
-                </div>
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
