@@ -20,10 +20,12 @@ export default function Navigation() {
             <Link href="/" className="flex items-center" data-testid="link-home">
               <i className="fas fa-database text-primary text-2xl mr-3"></i>
               <span className="text-xl font-bold text-foreground">AutoCRUD Core</span>
-              <Badge variant="secondary" className="ml-2">v0.1.1</Badge>
+              <Badge variant="secondary" className="text-xs">
+            v0.1.4
+          </Badge>
             </Link>
           </div>
-          
+
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
               item.external ? (
@@ -48,7 +50,7 @@ export default function Navigation() {
                 </Link>
               )
             ))}
-            
+
             <a
               href="https://github.com/vaibhavr2107/autocrud"
               className="text-muted-foreground hover:text-foreground transition-colors"
@@ -56,7 +58,7 @@ export default function Navigation() {
             >
               <i className="fab fa-github text-lg"></i>
             </a>
-            
+
             <a
               href="https://www.npmjs.com/package/autocrud-core"
               className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
