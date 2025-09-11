@@ -50,5 +50,73 @@
     "id": "a4337082-e12e-421f-aea7-02b8d50243f5",
     "createdAt": "2025-09-11T20:01:29.190Z",
     "updatedAt": "2025-09-11T20:01:29.190Z"
+  },
+  {
+    "name": "example",
+    "definition": {
+      "name": "example",
+      "primaryKey": {
+        "name": "id",
+        "auto": true,
+        "strategy": "uuid",
+        "type": "string"
+      },
+      "timestamps": true,
+      "fields": {
+        "id": {
+          "type": "string",
+          "required": true
+        },
+        "email": {
+          "type": "string",
+          "required": true
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "default": "user"
+        }
+      }
+    },
+    "isActive": true,
+    "id": "d9c61bee-a2a8-433d-ae5d-d7a2e7b655cf",
+    "createdAt": "2025-09-11T20:34:42.412Z",
+    "updatedAt": "2025-09-11T20:34:42.412Z"
+  },
+  {
+    "name": "wewe",
+    "definition": {
+      "name": "wewe",
+      "primaryKey": {
+        "name": "id",
+        "auto": true,
+        "strategy": "uuid",
+        "type": "string"
+      },
+      "timestamps": true,
+      "fields": {
+        "id": {
+          "type": "string",
+          "required": true
+        },
+        "email": {
+          "type": "string",
+          "required": true
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "default": "user"
+        }
+      }
+    },
+    "isActive": true,
+    "id": "34ee667b-ad3f-4610-a46a-33b80a70206d",
+    "createdAt": "2025-09-11T20:34:47.383Z",
+    "updatedAt": "2025-09-11T20:34:47.383Z"
   }
 ]
