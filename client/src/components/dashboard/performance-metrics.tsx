@@ -43,8 +43,8 @@ export default function PerformanceMetrics() {
   const [isRunningTests, setIsRunningTests] = useState(false);
   const [testProgress, setTestProgress] = useState(0);
 
-  // Available schemas for testing
-  const availableSchemas = ['user', 'product', 'order', 'schema', 'metric'];
+  // Available schemas for testing (excluding metric to avoid tracking loops)
+  const availableSchemas = ['user', 'product', 'order', 'schema'];
 
   // Fetch metrics from autocrud-metrics endpoint (real-time)
   const { data: autoCrudMetrics, isLoading: autoCrudLoading } = useQuery<any>({
@@ -65,12 +65,9 @@ export default function PerformanceMetrics() {
     staleTime: 0,
   });
 
-  // Fetch stored metrics from /api/metric
-  const { data: storedMetrics, isLoading: storedLoading } = useQuery<Metric[]>({
-    queryKey: ['/api/metric'],
-    refetchInterval: 2000,
-    staleTime: 0,
-  });
+  // Note: We're not fetching stored metrics to avoid tracking loops
+  const storedMetrics: Metric[] = [];
+  const storedLoading = false;
 
   // Combine metrics from both sources
   const allMetrics = [...(storedMetrics || []), ...realtimeMetrics];
@@ -85,7 +82,7 @@ export default function PerformanceMetrics() {
         const endTime = Date.now();
         const responseTime = endTime - startTime;
 
-        if (args[0] && typeof args[0] === 'string' && args[0].startsWith('/api/')) {
+        if (args[0] && typeof args[0] === 'string' && args[0].startsWith('/api/') && !args[0].includes('/api/metric')) {
           const newMetric: Metric = {
             id: `metric-${Date.now()}-${Math.random()}`,
             endpoint: args[0],
@@ -103,7 +100,7 @@ export default function PerformanceMetrics() {
         const endTime = Date.now();
         const responseTime = endTime - startTime;
 
-        if (args[0] && typeof args[0] === 'string' && args[0].startsWith('/api/')) {
+        if (args[0] && typeof args[0] === 'string' && args[0].startsWith('/api/') && !args[0].includes('/api/metric')) {
           const newMetric: Metric = {
             id: `metric-${Date.now()}-${Math.random()}`,
             endpoint: args[0],
@@ -172,15 +169,77 @@ export default function PerformanceMetrics() {
           body: JSON.stringify(sampleData)
         });
       } else if (test.method === 'PATCH') {
+        // For PATCH requests, first try to get a valid ID from the list endpoint
+        let targetId = null;
+        try {
+          const listEndpoint = test.endpoint.split('/').slice(0, -1).join('/');
+          const listResponse = await fetch(listEndpoint);
+          if (listResponse.ok) {
+            const items = await listResponse.json();
+            if (items && items.length > 0) {
+              targetId = items[0].id;
+            }
+          }
+        } catch (e) {
+          // Ignore errors, use default ID
+        }
+        
+        const updateEndpoint = targetId ? 
+          test.endpoint.replace(/\/[^/]+$/, `/${targetId}`) : 
+          test.endpoint;
+        
         const sampleData = generateUpdateData(test.endpoint);
-        response = await fetch(test.endpoint, {
+        response = await fetch(updateEndpoint, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(sampleData)
         });
       } else if (test.method === 'DELETE') {
-        response = await fetch(test.endpoint, {
+        // For DELETE requests, first try to get a valid ID from the list endpoint
+        let targetId = null;
+        try {
+          const listEndpoint = test.endpoint.split('/').slice(0, -1).join('/');
+          const listResponse = await fetch(listEndpoint);
+          if (listResponse.ok) {
+            const items = await listResponse.json();
+            if (items && items.length > 0) {
+              targetId = items[0].id;
+            }
+          }
+        } catch (e) {
+          // Ignore errors, use default ID
+        }
+        
+        const deleteEndpoint = targetId ? 
+          test.endpoint.replace(/\/[^/]+$/, `/${targetId}`) : 
+          test.endpoint;
+        
+        response = await fetch(deleteEndpoint, {
           method: 'DELETE'
+        });
+      } else if (test.endpoint.includes('/1') && test.method === 'GET') {
+        // For GET by ID requests, first try to get a valid ID from the list endpoint
+        let targetId = null;
+        try {
+          const listEndpoint = test.endpoint.split('/').slice(0, -1).join('/');
+          const listResponse = await fetch(listEndpoint);
+          if (listResponse.ok) {
+            const items = await listResponse.json();
+            if (items && items.length > 0) {
+              targetId = items[0].id;
+            }
+          }
+        } catch (e) {
+          // Ignore errors, use default ID
+        }
+        
+        const getEndpoint = targetId ? 
+          test.endpoint.replace(/\/[^/]+$/, `/${targetId}`) : 
+          test.endpoint;
+        
+        response = await fetch(getEndpoint, {
+          method: test.method,
+          headers: { 'Content-Type': 'application/json' }
         });
       } else {
         response = await fetch(test.endpoint, {
@@ -225,22 +284,29 @@ export default function PerformanceMetrics() {
     } else if (endpoint.includes('/product')) {
       return {
         name: `Test Product ${timestamp}`,
+        description: `Test description for product ${timestamp}`,
         price: Math.floor(Math.random() * 1000) + 10,
-        category: 'test',
-        inStock: true
+        category: 'test'
       };
     } else if (endpoint.includes('/order')) {
       return {
-        userId: 'test-user-id',
-        productId: 1,
+        userId: '1',
+        productIds: [1],
         quantity: Math.floor(Math.random() * 5) + 1,
-        status: 'pending'
+        status: 'pending',
+        totalAmount: 100
       };
     } else if (endpoint.includes('/schema')) {
       return {
         name: `test_schema_${timestamp}`,
         definition: {
           name: `test_schema_${timestamp}`,
+          primaryKey: {
+            name: 'id',
+            auto: true,
+            strategy: 'uuid',
+            type: 'string'
+          },
           fields: {
             id: { type: 'string', required: true },
             name: { type: 'string', required: true }
@@ -368,32 +434,87 @@ export default function PerformanceMetrics() {
     
     try {
       let query = '';
+      let variables = {};
       
       if (test.operation.includes('Query')) {
         const schema = test.operation.split(' ')[2];
-        query = `query { ${schema} { id } }`;
+        // Use proper GraphQL query syntax
+        if (schema === 'user') {
+          query = `query { users { id name email role } }`;
+        } else if (schema === 'product') {
+          query = `query { products { id name description price category } }`;
+        } else if (schema === 'order') {
+          query = `query { orders { id userId productIds status totalAmount } }`;
+        } else if (schema === 'schema') {
+          query = `query { schemas { id name definition isActive } }`;
+        }
       } else if (test.operation.includes('Mutation')) {
         const schema = test.operation.split(' ')[3];
         const sampleData = generateSampleData(`/api/${schema}`);
-        const fields = Object.keys(sampleData).map(key => `${key}: "${sampleData[key]}"`).join(', ');
-        query = `mutation { create${schema.charAt(0).toUpperCase() + schema.slice(1)}(${fields}) { id } }`;
+        
+        // Use proper GraphQL mutation syntax with variables
+        if (schema === 'user') {
+          query = `mutation CreateUser($name: String!, $email: String!, $role: String!) { 
+            createUser(name: $name, email: $email, role: $role) { id name email role } 
+          }`;
+          variables = {
+            name: sampleData.name,
+            email: sampleData.email,
+            role: sampleData.role
+          };
+        } else if (schema === 'product') {
+          query = `mutation CreateProduct($name: String!, $description: String, $price: Float!, $category: String!) { 
+            createProduct(name: $name, description: $description, price: $price, category: $category) { id name price } 
+          }`;
+          variables = {
+            name: sampleData.name,
+            description: sampleData.description,
+            price: sampleData.price,
+            category: sampleData.category
+          };
+        } else if (schema === 'order') {
+          query = `mutation CreateOrder($userId: String!, $productIds: [Int!]!, $quantity: Int!, $status: String!, $totalAmount: Float!) { 
+            createOrder(userId: $userId, productIds: $productIds, quantity: $quantity, status: $status, totalAmount: $totalAmount) { id userId status } 
+          }`;
+          variables = {
+            userId: sampleData.userId,
+            productIds: sampleData.productIds,
+            quantity: sampleData.quantity,
+            status: sampleData.status,
+            totalAmount: sampleData.totalAmount
+          };
+        } else if (schema === 'schema') {
+          query = `mutation CreateSchema($name: String!, $definition: JSON!, $isActive: Boolean!) { 
+            createSchema(name: $name, definition: $definition, isActive: $isActive) { id name isActive } 
+          }`;
+          variables = {
+            name: sampleData.name,
+            definition: sampleData.definition,
+            isActive: sampleData.isActive
+          };
+        }
       }
 
       const response = await fetch('/graphql', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query })
+        body: JSON.stringify({ query, variables })
       });
 
       const endTime = Date.now();
       const responseTime = endTime - startTime;
 
+      // Check if GraphQL returned data or errors
+      const result = await response.json();
+      const hasErrors = result.errors && result.errors.length > 0;
+      const hasData = result.data && Object.keys(result.data).length > 0;
+
       return {
         ...test,
-        status: response.ok ? 'success' : 'error',
+        status: response.ok && !hasErrors && hasData ? 'success' : 'error',
         responseTime,
         statusCode: response.status,
-        error: response.ok ? undefined : `HTTP ${response.status}`
+        error: hasErrors ? result.errors[0].message : (response.ok ? undefined : `HTTP ${response.status}`)
       };
     } catch (error) {
       const endTime = Date.now();
