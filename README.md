@@ -39,7 +39,7 @@ This will:
 - Start the Express server on port 5000
 - Launch Vite dev server for the frontend
 - Enable hot module replacement (HMR)
-- Serve both frontend and backend from `http://localhost:5000`
+- Serve both frontend and backend from `http://0.0.0.0:5000`
 
 ### Production Build
 
@@ -64,21 +64,24 @@ The production server runs on port 5000 and serves the built application.
 
 ### Development Database
 
-The application uses Replit's built-in PostgreSQL database for development. No additional setup required.
+The application uses a file-based database for development, storing data in JSON files in the `data/` directory. No additional setup required.
 
 ### Production Database
 
-For production, configure your PostgreSQL connection:
+The application supports multiple database adapters:
+- **File-based** (default): JSON files in `data/` directory
+- **PostgreSQL**: Configure with `DATABASE_URL`
+- **SQLite**: Use `better-sqlite3` adapter
+- **MongoDB**: Use MongoDB adapter
 
-1. **Push database schema:**
-```bash
-npm run db:push
-```
+For production with PostgreSQL:
 
-2. **Environment variables:**
+1. **Environment variables:**
 ```env
 DATABASE_URL=postgresql://username:password@host:port/database
 ```
+
+2. **Update autocrud config** to use PostgreSQL adapter
 
 ## 🛠️ Available Scripts
 
@@ -102,16 +105,26 @@ autocrud-core-demo/
 │   │   │   ├── dashboard/  # Dashboard components
 │   │   │   └── ui/         # shadcn/ui components
 │   │   ├── pages/          # Page components
-│   │   └── lib/            # Utilities and hooks
+│   │   ├── hooks/          # React hooks
+│   │   ├── lib/            # Utilities and services
+│   │   ├── App.tsx         # Main App component
+│   │   ├── main.tsx        # React entry point
+│   │   └── index.css       # Global styles
 │   └── index.html          # HTML template
 ├── server/                 # Express backend
 │   ├── index.ts           # Server entry point
-│   ├── routes.ts          # API routes
-│   ├── graphql.ts         # GraphQL setup
-│   ├── storage.ts         # Database layer
+│   ├── autocrud.config.ts # AutoCRUD configuration
 │   └── vite.ts            # Vite integration
-├── shared/                 # Shared types and schemas
-│   └── schema.ts          # Database schemas
+├── schemas/               # JSON schema definitions
+│   ├── user.json          # User schema
+│   ├── product.json       # Product schema
+│   ├── order.json         # Order schema
+│   ├── metric.json        # Metric schema
+│   └── schema.json        # Schema entity schema
+├── data/                  # File-based database storage
+├── shared/                # Shared types and schemas
+│   └── schema.ts          # TypeScript schema definitions
+├── netlify.toml           # Netlify deployment config
 └── package.json           # Dependencies and scripts
 ```
 
@@ -156,22 +169,25 @@ npm run build
 npm run start
 ```
 
-### Netlify Deployment
+### Replit Deployment
 
-This project is configured for seamless deployment on Netlify with serverless functions:
+This project is optimized for deployment on Replit:
 
-1. **Connect your repository** to Netlify
-2. **Build settings** are automatically configured via `netlify.toml`
-3. **Environment variables** can be set in Netlify dashboard under Site settings → Environment variables
+1. **Fork or import** this repository into Replit
+2. **Run the project** using the Run button or `npm run dev`
+3. **Environment variables** can be set in the Secrets tab
+4. **Automatic deployment** - Changes are instantly deployed
 
-#### Required Environment Variables for Netlify:
+#### Optional Environment Variables:
 
 ```env
 NODE_ENV=production
-DATABASE_URL=postgresql://...
+DATABASE_URL=postgresql://... (if using PostgreSQL)
 ```
 
-The `netlify.toml` configuration handles:
+### External Deployment (Netlify/Vercel)
+
+The project includes `netlify.toml` for external deployment:
 - Automatic builds with `npm run build`
 - Serverless function routing for `/api/*` endpoints
 - GraphQL endpoint routing for `/graphql`
@@ -192,9 +208,9 @@ PORT=5000
 
 Once running, visit:
 
-- **Homepage:** `http://localhost:5000`
-- **Documentation:** `http://localhost:5000/docs`
-- **Live Demo:** `http://localhost:5000/dashboard`
+- **Homepage:** `http://0.0.0.0:5000`
+- **Documentation:** `http://0.0.0.0:5000/docs`
+- **Live Demo:** `http://0.0.0.0:5000/dashboard`
 - **GraphQL Playground:** Available in the dashboard
 - **REST API Explorer:** Available in the dashboard
 
