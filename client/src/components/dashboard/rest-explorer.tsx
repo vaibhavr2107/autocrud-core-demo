@@ -29,7 +29,7 @@ interface ApiResponse {
 export default function RestExplorer() {
   const [request, setRequest] = useState<ApiRequest>({
     method: "GET",
-    url: "/api/users",
+    url: "/api/user",
     queryParams: {},
   });
   const [response, setResponse] = useState<ApiResponse | null>(null);
@@ -117,7 +117,7 @@ export default function RestExplorer() {
     { method: "POST", url: "/api/product", description: "Create new product" },
     { method: "GET", url: "/api/order", description: "List all orders" },
     { method: "GET", url: "/api/order?withDetails=true", description: "List orders with details" },
-    { method: "GET", url: "/api/metrics/summary", description: "Get performance metrics" },
+    { method: "GET", url: "/api/metric/summary", description: "Get performance metrics" },
   ];
 
   const exampleBodies = {

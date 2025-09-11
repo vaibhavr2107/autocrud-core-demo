@@ -17,13 +17,13 @@ export default function PerformanceMetrics() {
 
   // Fetch metrics summary
   const { data: summary, isLoading: summaryLoading } = useQuery<MetricsSummary>({
-    queryKey: ['/api/metrics/summary'],
+    queryKey: ['/api/metric/summary'],
     refetchInterval: autoRefresh ? 5000 : false,
   });
 
   // Fetch detailed metrics
   const { data: metrics, isLoading: metricsLoading } = useQuery<Metric[]>({
-    queryKey: ['/api/metrics'],
+    queryKey: ['/api/metric'],
     refetchInterval: autoRefresh ? 10000 : false,
   });
 

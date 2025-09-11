@@ -166,18 +166,18 @@ export class AutoCRUDService {
 
   // Metrics operations
   async getMetrics(limit = 100): Promise<Metric[]> {
-    const response = await apiRequest('GET', `/api/metrics?limit=${limit}`);
+    const response = await apiRequest('GET', `/api/metric?limit=${limit}`);
     return response.json();
   }
 
   async getMetricsSummary(): Promise<MetricsSummary> {
-    const response = await apiRequest('GET', '/api/metrics/summary');
+    const response = await apiRequest('GET', '/api/metric/summary');
     return response.json();
   }
 
   // Join operations
   async getUserWithOrders(userId: string): Promise<UserWithOrders> {
-    const response = await apiRequest('GET', `/api/join/users/${userId}/orders`);
+    const response = await apiRequest('GET', `/api/join/userOrders?userId=${userId}`);
     return response.json();
   }
 
