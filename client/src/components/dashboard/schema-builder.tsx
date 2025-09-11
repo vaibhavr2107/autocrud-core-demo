@@ -18,17 +18,17 @@ export default function SchemaBuilder() {
 
   // Fetch schemas
   const { data: schemas, isLoading } = useQuery<Schema[]>({
-    queryKey: ['/api/schemas'],
+    queryKey: ['/api/schema'],
   });
 
   // Create schema mutation
   const createSchemaMutation = useMutation({
     mutationFn: async (data: { name: string; definition: any; isActive: boolean }) => {
-      const response = await apiRequest('POST', '/api/schemas', data);
+      const response = await apiRequest('POST', '/api/schema', data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/schemas'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/schema'] });
       setIsCreating(false);
       setSchemaJson("");
       toast({
@@ -48,11 +48,11 @@ export default function SchemaBuilder() {
   // Update schema mutation
   const updateSchemaMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const response = await apiRequest('PATCH', `/api/schemas/${id}`, data);
+      const response = await apiRequest('PATCH', `/api/schema/${id}`, data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/schemas'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/schema'] });
       toast({
         title: "Schema updated successfully",
         description: "Your schema changes have been saved.",

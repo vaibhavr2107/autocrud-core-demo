@@ -171,8 +171,36 @@ export class AutoCRUDService {
   }
 
   async getMetricsSummary(): Promise<MetricsSummary> {
-    const response = await apiRequest('GET', '/api/metric/summary');
-    return response.json();
+    // Since autocrud-core doesn't provide metrics summary, calculate from metrics
+    const metrics = await this.getMetrics(1000);
+    
+    if (metrics.length === 0) {
+      return {
+        averageResponseTime: 0,
+        cacheHitRate: 0,
+        requestsPerSecond: 0
+      };
+    }
+
+    const avgResponseTime = Math.round(
+      metrics.reduce((sum, m) => sum + m.responseTime, 0) / metrics.length
+    );
+    
+    const cacheHits = metrics.filter(m => m.cacheHit).length;
+    const cacheHitRate = Math.round((cacheHits / metrics.length) * 100);
+    
+    // Calculate requests per second (simple approximation)
+    const now = Date.now();
+    const recentMetrics = metrics.filter(m => 
+      m.timestamp && (now - new Date(m.timestamp).getTime()) < 60000 // last minute
+    );
+    const requestsPerSecond = Math.round(recentMetrics.length / 60);
+
+    return {
+      averageResponseTime: avgResponseTime,
+      cacheHitRate: cacheHitRate,
+      requestsPerSecond: requestsPerSecond
+    };
   }
 
   // Join operations
