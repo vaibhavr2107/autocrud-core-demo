@@ -4,6 +4,7 @@ import FeaturesSection from "@/components/homepage/features-section";
 import DemoTabs from "@/components/dashboard/demo-tabs";
 import LiveDemoSection from "@/components/homepage/live-demo-section";
 import QuickStart from "@/components/homepage/quick-start";
+import UpcomingFeatures from "@/components/homepage/upcoming-features";
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
       <FeaturesSection />
       <LiveDemoSection />
       <QuickStart />
+      <UpcomingFeatures />
       
       {/* Footer */}
       <footer className="bg-card border-t border-border py-12">
@@ -60,7 +62,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2024 AutoCRUD Core. Licensed under Apache-2.0.</p>
+            <p>&copy; 2025 AutoCRUD Core by Vaibhav Ramawat. Licensed under Apache-2.0.</p>
           </div>
         </div>
       </footer>

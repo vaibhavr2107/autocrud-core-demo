@@ -71,25 +71,6 @@ PATCH /api/user/:id`,
           ))}
         </div>
 
-        {/* Database Adapters */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl text-center mb-6">Multiple Database Adapters</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {adapters.map((adapter) => (
-                <div key={adapter.name} className="text-center" data-testid={`adapter-${adapter.name.toLowerCase()}`}>
-                  <div className={`bg-${adapter.color.split('-')[1]}-500/10 p-4 rounded-lg mb-3 inline-block`}>
-                    <i className={`${adapter.icon} ${adapter.color} text-2xl`}></i>
-                  </div>
-                  <div className="text-foreground font-medium">{adapter.name}</div>
-                  <div className="text-sm text-muted-foreground">{adapter.desc}</div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </section>
   );

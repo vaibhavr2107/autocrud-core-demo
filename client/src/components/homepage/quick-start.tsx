@@ -114,7 +114,7 @@ await app.start();`
               className="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
               data-testid="button-view-npm"
             >
-              View on NPM
+              <i className="fab fa-npm mr-2"></i>View on NPM
             </a>
             <a
               href="https://github.com/vaibhavr2107/autocrud"
