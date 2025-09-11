@@ -1,0 +1,20 @@
+{
+  "name": "product",
+  "primaryKey": { 
+    "name": "id", 
+    "auto": true, 
+    "strategy": "sequence", 
+    "type": "number", 
+    "start": 100, 
+    "step": 1 
+  },
+  "timestamps": true,
+  "fields": {
+    "id": { "type": "number", "required": true },
+    "name": { "type": "string", "required": true },
+    "description": { "type": "string", "required": false },
+    "price": { "type": "number", "required": true },
+    "category": { "type": "string", "required": false },
+    "inStock": { "type": "boolean", "required": false, "default": true }
+  }
+}

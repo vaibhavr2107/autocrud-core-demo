@@ -44,7 +44,7 @@
     "@radix-ui/react-tooltip": "^1.2.0",
     "@tanstack/react-query": "^5.60.5",
     "apollo-server-express": "^3.13.0",
-    "autocrud-core": "^0.1.1",
+    "autocrud-core": "^0.1.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

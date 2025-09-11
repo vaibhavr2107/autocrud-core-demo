@@ -1,0 +1,18 @@
+{
+  "name": "order",
+  "primaryKey": { 
+    "name": "id", 
+    "auto": true, 
+    "strategy": "uuid", 
+    "type": "string" 
+  },
+  "timestamps": true,
+  "fields": {
+    "id": { "type": "string", "required": true },
+    "userId": { "type": "string", "required": false },
+    "productId": { "type": "number", "required": false },
+    "quantity": { "type": "number", "required": true, "default": 1 },
+    "totalAmount": { "type": "number", "required": true },
+    "status": { "type": "string", "required": false, "default": "pending" }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "schema",
+  "primaryKey": { 
+    "name": "id", 
+    "auto": true, 
+    "strategy": "uuid", 
+    "type": "string" 
+  },
+  "timestamps": true,
+  "fields": {
+    "id": { "type": "string", "required": true },
+    "name": { "type": "string", "required": true },
+    "definition": { "type": "json", "required": true },
+    "isActive": { "type": "boolean", "required": false, "default": true }
+  }
+}
