@@ -254,5 +254,45 @@
     "id": "44e0fca4-4609-4874-b00e-34921b6251ea",
     "createdAt": "2025-09-11T20:52:14.888Z",
     "updatedAt": "2025-09-11T20:52:14.888Z"
+  },
+  {
+    "name": "test_schema_1757624299197",
+    "definition": {
+      "name": "test_schema_1757624299197",
+      "fields": {
+        "id": {
+          "type": "string",
+          "required": true
+        },
+        "name": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "isActive": true,
+    "id": "0261f7e2-a775-4777-907b-eb304bd87f16",
+    "createdAt": "2025-09-11T20:58:25.767Z",
+    "updatedAt": "2025-09-11T20:58:25.767Z"
+  },
+  {
+    "name": "test_schema_1757624368367",
+    "definition": {
+      "name": "test_schema_1757624368367",
+      "fields": {
+        "id": {
+          "type": "string",
+          "required": true
+        },
+        "name": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "isActive": true,
+    "id": "3b1eaa04-d7ad-426d-97c9-abd03bd36324",
+    "createdAt": "2025-09-11T20:59:34.939Z",
+    "updatedAt": "2025-09-11T20:59:34.939Z"
   }
 ]

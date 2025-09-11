@@ -1,0 +1,274 @@
+Performance Test Results
+REST API Tests
+Completed
+18 passed
+17 failed
+Avg: 31ms
+user - List All
+GET
+success
+32ms
+user - Create
+POST
+success
+23ms
+user - Get by ID
+GET
+error
+87ms
+HTTP 404
+
+user - Update
+PATCH
+error
+28ms
+HTTP 404
+
+user - Delete
+DELETE
+error
+20ms
+HTTP 404
+
+user - Pagination (limit)
+GET
+success
+44ms
+user - Pagination (offset)
+GET
+success
+29ms
+product - List All
+GET
+success
+23ms
+product - Create
+POST
+success
+20ms
+product - Get by ID
+GET
+error
+23ms
+HTTP 404
+
+product - Update
+PATCH
+error
+24ms
+HTTP 404
+
+product - Delete
+DELETE
+error
+65ms
+HTTP 404
+
+product - Pagination (limit)
+GET
+success
+19ms
+product - Pagination (offset)
+GET
+success
+20ms
+order - List All
+GET
+success
+45ms
+order - Create
+POST
+error
+20ms
+HTTP 400
+
+order - Get by ID
+GET
+error
+19ms
+HTTP 404
+
+order - Update
+PATCH
+error
+40ms
+HTTP 404
+
+order - Delete
+DELETE
+error
+23ms
+HTTP 404
+
+order - Pagination (limit)
+GET
+success
+19ms
+order - Pagination (offset)
+GET
+success
+73ms
+schema - List All
+GET
+success
+27ms
+schema - Create
+POST
+success
+21ms
+schema - Get by ID
+GET
+error
+49ms
+HTTP 404
+
+schema - Update
+PATCH
+error
+20ms
+HTTP 404
+
+schema - Delete
+DELETE
+error
+18ms
+HTTP 404
+
+schema - Pagination (limit)
+GET
+success
+46ms
+schema - Pagination (offset)
+GET
+success
+19ms
+metric - List All
+GET
+success
+18ms
+metric - Create
+POST
+error
+43ms
+HTTP 400
+
+metric - Get by ID
+GET
+error
+21ms
+HTTP 404
+
+metric - Update
+PATCH
+error
+20ms
+HTTP 400
+
+metric - Delete
+DELETE
+error
+45ms
+HTTP 404
+
+metric - Pagination (limit)
+GET
+success
+20ms
+metric - Pagination (offset)
+GET
+success
+19ms
+GraphQL Tests
+Completed
+0 passed
+10 failed
+Avg: 28ms
+GraphQL - Query user
+POST
+error
+50ms
+HTTP 400
+
+GraphQL - Mutation Create user
+POST
+error
+22ms
+HTTP 400
+
+GraphQL - Query product
+POST
+error
+21ms
+HTTP 400
+
+GraphQL - Mutation Create product
+POST
+error
+33ms
+HTTP 400
+
+GraphQL - Query order
+POST
+error
+33ms
+HTTP 400
+
+GraphQL - Mutation Create order
+POST
+error
+21ms
+HTTP 400
+
+GraphQL - Query schema
+POST
+error
+20ms
+HTTP 400
+
+GraphQL - Mutation Create schema
+POST
+error
+33ms
+HTTP 400
+
+GraphQL - Query metric
+POST
+error
+23ms
+HTTP 400
+
+GraphQL - Mutation Create metric
+POST
+error
+21ms
+HTTP 400
+
+Utility Endpoints
+Completed
+6 passed
+0 failed
+Avg: 29ms
+Health Check
+GET
+success
+25ms
+Info
+GET
+success
+35ms
+List Endpoints
+GET
+success
+32ms
+Metrics
+GET
+success
+31ms
+OpenAPI Spec
+GET
+success
+24ms
+SDL
+GET
+success
+24ms
