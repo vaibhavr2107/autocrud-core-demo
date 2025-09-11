@@ -181,7 +181,26 @@ export default function PerformanceMetrics() {
             }
           }
         } catch (e) {
-          // Ignore errors, use default ID
+          // Ignore errors, try creating an item first
+        }
+        
+        // If no valid ID found, create a new item first
+        if (!targetId) {
+          try {
+            const listEndpoint = test.endpoint.split('/').slice(0, -1).join('/');
+            const createData = generateSampleData(listEndpoint);
+            const createResponse = await fetch(listEndpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(createData)
+            });
+            if (createResponse.ok) {
+              const createdItem = await createResponse.json();
+              targetId = createdItem.id;
+            }
+          } catch (e) {
+            // Still use default if creation fails
+          }
         }
         
         const updateEndpoint = targetId ? 
@@ -207,7 +226,26 @@ export default function PerformanceMetrics() {
             }
           }
         } catch (e) {
-          // Ignore errors, use default ID
+          // Ignore errors, try creating an item first
+        }
+        
+        // If no valid ID found, create a new item first
+        if (!targetId) {
+          try {
+            const listEndpoint = test.endpoint.split('/').slice(0, -1).join('/');
+            const createData = generateSampleData(listEndpoint);
+            const createResponse = await fetch(listEndpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(createData)
+            });
+            if (createResponse.ok) {
+              const createdItem = await createResponse.json();
+              targetId = createdItem.id;
+            }
+          } catch (e) {
+            // Still use default if creation fails
+          }
         }
         
         const deleteEndpoint = targetId ? 
@@ -230,7 +268,26 @@ export default function PerformanceMetrics() {
             }
           }
         } catch (e) {
-          // Ignore errors, use default ID
+          // Ignore errors, try creating an item first
+        }
+        
+        // If no valid ID found, create a new item first
+        if (!targetId) {
+          try {
+            const listEndpoint = test.endpoint.split('/').slice(0, -1).join('/');
+            const createData = generateSampleData(listEndpoint);
+            const createResponse = await fetch(listEndpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(createData)
+            });
+            if (createResponse.ok) {
+              const createdItem = await createResponse.json();
+              targetId = createdItem.id;
+            }
+          } catch (e) {
+            // Still use default if creation fails
+          }
         }
         
         const getEndpoint = targetId ? 
@@ -286,15 +343,17 @@ export default function PerformanceMetrics() {
         name: `Test Product ${timestamp}`,
         description: `Test description for product ${timestamp}`,
         price: Math.floor(Math.random() * 1000) + 10,
-        category: 'test'
+        category: 'test',
+        inStock: true
       };
     } else if (endpoint.includes('/order')) {
+      // Generate a valid order with proper structure
       return {
-        userId: '1',
-        productIds: [1],
+        userId: `user-${timestamp}`,
+        productId: 100, // Use a valid product ID from the database
         quantity: Math.floor(Math.random() * 5) + 1,
         status: 'pending',
-        totalAmount: 100
+        totalAmount: Math.floor(Math.random() * 500) + 50
       };
     } else if (endpoint.includes('/schema')) {
       return {
@@ -438,61 +497,74 @@ export default function PerformanceMetrics() {
       
       if (test.operation.includes('Query')) {
         const schema = test.operation.split(' ')[2];
-        // Use proper GraphQL query syntax
+        // Use proper GraphQL query syntax based on AutoCRUD GraphQL schema
         if (schema === 'user') {
-          query = `query { users { id name email role } }`;
+          query = `query { userList { id name email role } }`;
         } else if (schema === 'product') {
-          query = `query { products { id name description price category } }`;
+          query = `query { productList { id name description price category } }`;
         } else if (schema === 'order') {
-          query = `query { orders { id userId productIds status totalAmount } }`;
+          query = `query { orderList { id userId productIds status totalAmount } }`;
         } else if (schema === 'schema') {
-          query = `query { schemas { id name definition isActive } }`;
+          query = `query { schemaList { id name definition isActive } }`;
         }
       } else if (test.operation.includes('Mutation')) {
         const schema = test.operation.split(' ')[3];
         const sampleData = generateSampleData(`/api/${schema}`);
         
-        // Use proper GraphQL mutation syntax with variables
+        // Use proper GraphQL mutation syntax with input object
         if (schema === 'user') {
-          query = `mutation CreateUser($name: String!, $email: String!, $role: String!) { 
-            createUser(name: $name, email: $email, role: $role) { id name email role } 
+          query = `mutation CreateUser($input: JSON!) { 
+            createUser(input: $input) { id name email role } 
           }`;
           variables = {
-            name: sampleData.name,
-            email: sampleData.email,
-            role: sampleData.role
+            input: {
+              name: sampleData.name,
+              email: sampleData.email,
+              role: sampleData.role
+            }
           };
         } else if (schema === 'product') {
-          query = `mutation CreateProduct($name: String!, $description: String, $price: Float!, $category: String!) { 
-            createProduct(name: $name, description: $description, price: $price, category: $category) { id name price } 
+          query = `mutation CreateProduct($input: JSON!) { 
+            createProduct(input: $input) { id name price category } 
           }`;
           variables = {
-            name: sampleData.name,
-            description: sampleData.description,
-            price: sampleData.price,
-            category: sampleData.category
+            input: {
+              name: sampleData.name,
+              description: sampleData.description,
+              price: sampleData.price,
+              category: sampleData.category
+            }
           };
         } else if (schema === 'order') {
-          query = `mutation CreateOrder($userId: String!, $productIds: [Int!]!, $quantity: Int!, $status: String!, $totalAmount: Float!) { 
-            createOrder(userId: $userId, productIds: $productIds, quantity: $quantity, status: $status, totalAmount: $totalAmount) { id userId status } 
+          query = `mutation CreateOrder($input: JSON!) { 
+            createOrder(input: $input) { id userId status } 
           }`;
           variables = {
-            userId: sampleData.userId,
-            productIds: sampleData.productIds,
-            quantity: sampleData.quantity,
-            status: sampleData.status,
-            totalAmount: sampleData.totalAmount
+            input: {
+              userId: sampleData.userId,
+              productIds: sampleData.productIds,
+              quantity: sampleData.quantity,
+              status: sampleData.status,
+              totalAmount: sampleData.totalAmount
+            }
           };
         } else if (schema === 'schema') {
-          query = `mutation CreateSchema($name: String!, $definition: JSON!, $isActive: Boolean!) { 
-            createSchema(name: $name, definition: $definition, isActive: $isActive) { id name isActive } 
+          query = `mutation CreateSchema($input: JSON!) { 
+            createSchema(input: $input) { id name isActive } 
           }`;
           variables = {
-            name: sampleData.name,
-            definition: sampleData.definition,
-            isActive: sampleData.isActive
+            input: {
+              name: sampleData.name,
+              definition: sampleData.definition,
+              isActive: sampleData.isActive
+            }
           };
         }
+      }
+
+      // Ensure we have a valid query
+      if (!query.trim()) {
+        throw new Error('Empty GraphQL query generated');
       }
 
       const response = await fetch('/graphql', {
