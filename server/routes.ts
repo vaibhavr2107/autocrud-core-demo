@@ -3,8 +3,23 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, insertProductSchema, insertOrderSchema, insertSchemaSchema, insertMetricSchema } from "@shared/schema";
 import { z } from "zod";
+import { ApolloServer } from 'apollo-server-express';
+import { createGraphQLSchema } from './graphql';
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup GraphQL server
+  const schema = createGraphQLSchema(storage);
+  const apolloServer = new ApolloServer({
+    schema,
+    context: () => ({
+      storage,
+    }),
+    introspection: true,
+  });
+
+  await apolloServer.start();
+  apolloServer.applyMiddleware({ app, path: '/graphql' });
+
   // Middleware to track metrics
   app.use("/api", async (req, res, next) => {
     const start = Date.now();
