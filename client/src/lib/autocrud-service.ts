@@ -50,7 +50,7 @@ export class AutoCRUDService {
   
   // User operations
   async getUsers(params?: ListParams): Promise<User[]> {
-    const url = new URL('/api/users', window.location.origin);
+    const url = new URL('/api/user', window.location.origin);
     if (params?.limit) url.searchParams.set('limit', params.limit.toString());
     if (params?.offset) url.searchParams.set('offset', params.offset.toString());
     
@@ -59,27 +59,27 @@ export class AutoCRUDService {
   }
 
   async getUser(id: string): Promise<User> {
-    const response = await apiRequest('GET', `/api/users/${id}`);
+    const response = await apiRequest('GET', `/api/user/${id}`);
     return response.json();
   }
 
   async createUser(user: InsertUser): Promise<User> {
-    const response = await apiRequest('POST', '/api/users', user);
+    const response = await apiRequest('POST', '/api/user', user);
     return response.json();
   }
 
   async updateUser(id: string, user: Partial<InsertUser>): Promise<User> {
-    const response = await apiRequest('PATCH', `/api/users/${id}`, user);
+    const response = await apiRequest('PATCH', `/api/user/${id}`, user);
     return response.json();
   }
 
   async deleteUser(id: string): Promise<void> {
-    await apiRequest('DELETE', `/api/users/${id}`);
+    await apiRequest('DELETE', `/api/user/${id}`);
   }
 
   // Product operations
   async getProducts(params?: ListParams): Promise<Product[]> {
-    const url = new URL('/api/products', window.location.origin);
+    const url = new URL('/api/product', window.location.origin);
     if (params?.limit) url.searchParams.set('limit', params.limit.toString());
     if (params?.offset) url.searchParams.set('offset', params.offset.toString());
     
@@ -88,27 +88,27 @@ export class AutoCRUDService {
   }
 
   async getProduct(id: number): Promise<Product> {
-    const response = await apiRequest('GET', `/api/products/${id}`);
+    const response = await apiRequest('GET', `/api/product/${id}`);
     return response.json();
   }
 
   async createProduct(product: InsertProduct): Promise<Product> {
-    const response = await apiRequest('POST', '/api/products', product);
+    const response = await apiRequest('POST', '/api/product', product);
     return response.json();
   }
 
   async updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product> {
-    const response = await apiRequest('PATCH', `/api/products/${id}`, product);
+    const response = await apiRequest('PATCH', `/api/product/${id}`, product);
     return response.json();
   }
 
   async deleteProduct(id: number): Promise<void> {
-    await apiRequest('DELETE', `/api/products/${id}`);
+    await apiRequest('DELETE', `/api/product/${id}`);
   }
 
   // Order operations
   async getOrders(params?: ListParams): Promise<Order[] | OrderWithDetails[]> {
-    const url = new URL('/api/orders', window.location.origin);
+    const url = new URL('/api/order', window.location.origin);
     if (params?.limit) url.searchParams.set('limit', params.limit.toString());
     if (params?.offset) url.searchParams.set('offset', params.offset.toString());
     if (params?.withDetails) url.searchParams.set('withDetails', 'true');
@@ -118,7 +118,7 @@ export class AutoCRUDService {
   }
 
   async getOrder(id: string, withDetails = false): Promise<Order | OrderWithDetails> {
-    const url = new URL(`/api/orders/${id}`, window.location.origin);
+    const url = new URL(`/api/order/${id}`, window.location.origin);
     if (withDetails) url.searchParams.set('withDetails', 'true');
     
     const response = await apiRequest('GET', url.pathname + url.search);
@@ -126,42 +126,42 @@ export class AutoCRUDService {
   }
 
   async createOrder(order: InsertOrder): Promise<Order> {
-    const response = await apiRequest('POST', '/api/orders', order);
+    const response = await apiRequest('POST', '/api/order', order);
     return response.json();
   }
 
   async updateOrder(id: string, order: Partial<InsertOrder>): Promise<Order> {
-    const response = await apiRequest('PATCH', `/api/orders/${id}`, order);
+    const response = await apiRequest('PATCH', `/api/order/${id}`, order);
     return response.json();
   }
 
   async deleteOrder(id: string): Promise<void> {
-    await apiRequest('DELETE', `/api/orders/${id}`);
+    await apiRequest('DELETE', `/api/order/${id}`);
   }
 
   // Schema operations
   async getSchemas(): Promise<Schema[]> {
-    const response = await apiRequest('GET', '/api/schemas');
+    const response = await apiRequest('GET', '/api/schema');
     return response.json();
   }
 
   async getSchema(id: string): Promise<Schema> {
-    const response = await apiRequest('GET', `/api/schemas/${id}`);
+    const response = await apiRequest('GET', `/api/schema/${id}`);
     return response.json();
   }
 
   async createSchema(schema: InsertSchema): Promise<Schema> {
-    const response = await apiRequest('POST', '/api/schemas', schema);
+    const response = await apiRequest('POST', '/api/schema', schema);
     return response.json();
   }
 
   async updateSchema(id: string, schema: Partial<InsertSchema>): Promise<Schema> {
-    const response = await apiRequest('PATCH', `/api/schemas/${id}`, schema);
+    const response = await apiRequest('PATCH', `/api/schema/${id}`, schema);
     return response.json();
   }
 
   async deleteSchema(id: string): Promise<void> {
-    await apiRequest('DELETE', `/api/schemas/${id}`);
+    await apiRequest('DELETE', `/api/schema/${id}`);
   }
 
   // Metrics operations

@@ -109,31 +109,31 @@ export default function RestExplorer() {
   };
 
   const predefinedEndpoints = [
-    { method: "GET", url: "/api/users", description: "List all users" },
-    { method: "POST", url: "/api/users", description: "Create new user" },
-    { method: "GET", url: "/api/users/user-1", description: "Get user by ID" },
-    { method: "PATCH", url: "/api/users/user-1", description: "Update user" },
-    { method: "GET", url: "/api/products", description: "List all products" },
-    { method: "POST", url: "/api/products", description: "Create new product" },
-    { method: "GET", url: "/api/orders", description: "List all orders" },
-    { method: "GET", url: "/api/orders?withDetails=true", description: "List orders with details" },
+    { method: "GET", url: "/api/user", description: "List all users" },
+    { method: "POST", url: "/api/user", description: "Create new user" },
+    { method: "GET", url: "/api/user/user-1", description: "Get user by ID" },
+    { method: "PATCH", url: "/api/user/user-1", description: "Update user" },
+    { method: "GET", url: "/api/product", description: "List all products" },
+    { method: "POST", url: "/api/product", description: "Create new product" },
+    { method: "GET", url: "/api/order", description: "List all orders" },
+    { method: "GET", url: "/api/order?withDetails=true", description: "List orders with details" },
     { method: "GET", url: "/api/metrics/summary", description: "Get performance metrics" },
   ];
 
   const exampleBodies = {
-    "/api/users": JSON.stringify({
+    "/api/user": JSON.stringify({
       email: "newuser@example.com",
       name: "New User",
       role: "user"
     }, null, 2),
-    "/api/products": JSON.stringify({
+    "/api/product": JSON.stringify({
       name: "New Product",
       description: "A sample product",
       price: 2999,
       category: "Electronics",
       inStock: true
     }, null, 2),
-    "/api/orders": JSON.stringify({
+    "/api/order": JSON.stringify({
       userId: "user-1", 
       productId: 101,
       quantity: 2,
