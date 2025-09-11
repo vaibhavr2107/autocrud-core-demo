@@ -182,7 +182,7 @@ export default function SchemaBuilder() {
                   <div>
                     <h4 className="font-semibold text-foreground">{schema.name}</h4>
                     <p className="text-sm text-muted-foreground">
-                      {Object.keys(schema.definition.fields || {}).length} fields
+                      {Object.keys((schema.definition as any)?.fields || {}).length} fields
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">

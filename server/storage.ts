@@ -191,6 +191,8 @@ export class MemStorage implements IStorage {
     const user: User = { 
       ...insertUser, 
       id, 
+      name: insertUser.name || null,
+      role: insertUser.role || null,
       createdAt: now, 
       updatedAt: now 
     };
@@ -231,6 +233,9 @@ export class MemStorage implements IStorage {
     const product: Product = { 
       ...insertProduct, 
       id, 
+      description: insertProduct.description || null,
+      category: insertProduct.category || null,
+      inStock: insertProduct.inStock ?? true,
       createdAt: now, 
       updatedAt: now 
     };
@@ -271,6 +276,9 @@ export class MemStorage implements IStorage {
     const order: Order = { 
       ...insertOrder, 
       id, 
+      userId: insertOrder.userId || null,
+      productId: insertOrder.productId || null,
+      status: insertOrder.status || null,
       createdAt: now, 
       updatedAt: now 
     };
@@ -315,6 +323,7 @@ export class MemStorage implements IStorage {
     const schema: Schema = { 
       ...insertSchema, 
       id, 
+      isActive: insertSchema.isActive ?? true,
       createdAt: now, 
       updatedAt: now 
     };
@@ -348,6 +357,7 @@ export class MemStorage implements IStorage {
     const metric: Metric = { 
       ...insertMetric, 
       id: randomUUID(), 
+      cacheHit: insertMetric.cacheHit ?? false,
       timestamp: new Date() 
     };
     this.metrics.push(metric);
