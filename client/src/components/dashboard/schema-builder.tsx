@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,47 @@ export default function SchemaBuilder() {
   const { data: userSchemas, isLoading } = useQuery<Schema[]>({
     queryKey: ['/api/schema'],
   });
+
+  // Add default test schema on component mount
+  React.useEffect(() => {
+    if (userSchemas && userSchemas.length === 0 && !isCreating && !selectedSchema) {
+      const testSchema = {
+        name: "test",
+        primaryKey: {
+          name: "id",
+          auto: true,
+          strategy: "uuid",
+          type: "string"
+        },
+        timestamps: true,
+        fields: {
+          id: {
+            type: "string",
+            required: true
+          },
+          name: {
+            type: "string",
+            required: true
+          },
+          email: {
+            type: "string",
+            required: false
+          },
+          status: {
+            type: "string",
+            default: "active"
+          }
+        }
+      };
+      setSelectedSchema({
+        id: "test-schema",
+        name: "test",
+        definition: testSchema,
+        isActive: true
+      });
+      setSchemaJson(JSON.stringify(testSchema, null, 2));
+    }
+  }, [userSchemas, isCreating, selectedSchema]);
 
   // Create schema mutation
   const createSchemaMutation = useMutation({
@@ -322,19 +363,33 @@ export default function SchemaBuilder() {
             </div>
           </div>
         ) : (
-          <div className="h-96 bg-muted/20 rounded-lg border-2 border-dashed border-border flex items-center justify-center">
-            <div className="text-center">
-              <i className="fas fa-code text-4xl text-muted-foreground mb-4"></i>
-              <p className="text-muted-foreground mb-2">Select a schema to edit or create a new one</p>
+          <div className="space-y-4">
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <h4 className="font-medium text-foreground mb-2">Complete Schema JSON View</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                This shows the complete JSON structure of schemas including system configuration schemas.
+              </p>
+            </div>
+            <div className="bg-muted p-4 rounded-lg max-h-96 overflow-auto">
+              <pre className="text-sm whitespace-pre-wrap code-font">
+{JSON.stringify({
+  systemSchemas: configSchemas,
+  userSchemas: userSchemas || [],
+  totalSchemas: (userSchemas?.length || 0) + configSchemas.length,
+  exampleSchema: defaultSchema
+}, null, 2)}
+              </pre>
+            </div>
+            <div className="text-center pt-4">
               <Button
-                variant="outline"
                 onClick={() => {
                   setIsCreating(true);
                   setSchemaJson(JSON.stringify(defaultSchema, null, 2));
                 }}
                 data-testid="button-create-first-schema"
               >
-                Create Your First Schema
+                <i className="fas fa-plus mr-2"></i>
+                Create New Schema
               </Button>
             </div>
           </div>

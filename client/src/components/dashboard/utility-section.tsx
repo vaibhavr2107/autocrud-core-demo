@@ -174,175 +174,171 @@ export default function UtilitySection() {
         </p>
       </div>
 
-      <Tabs defaultValue="utility" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="utility" data-testid="tab-utility">Utility</TabsTrigger>
-          <TabsTrigger value="api" data-testid="tab-api">API Endpoints</TabsTrigger>
-          <TabsTrigger value="responses" data-testid="tab-responses">Responses</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="utility" className="space-y-4">
-          <div className="grid gap-4">
-            <h4 className="text-md font-semibold text-foreground">AutoCRUD Utility Endpoints</h4>
-            {utilityEndpoints.map((endpoint, index) => (
-              <Card key={index} className="border-l-4 border-l-blue-500">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Badge variant="outline" className="font-mono">
-                        {endpoint.method}
-                      </Badge>
-                      <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                        {endpoint.path}
-                      </code>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => executeUtilityCall(endpoint)}
-                        disabled={loading[endpoint.path]}
-                        data-testid={`execute-${endpoint.path.replace('/', '')}`}
-                      >
-                        {loading[endpoint.path] ? (
-                          <i className="fas fa-spinner fa-spin mr-2"></i>
-                        ) : (
-                          <i className="fas fa-play mr-2"></i>
-                        )}
-                        Execute
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => copyResponse(generateCurlCommand(endpoint))}
-                        data-testid={`copy-curl-${endpoint.path.replace('/', '')}`}
-                      >
-                        <i className="fas fa-copy mr-2"></i>
-                        Copy cURL
-                      </Button>
-                    </div>
+      <div className="space-y-6">
+        <div className="grid gap-4">
+          <h4 className="text-md font-semibold text-foreground">AutoCRUD Utility Endpoints</h4>
+          {utilityEndpoints.map((endpoint, index) => (
+            <Card key={index} className="border-l-4 border-l-blue-500">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Badge variant="outline" className="font-mono">
+                      {endpoint.method}
+                    </Badge>
+                    <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                      {endpoint.path}
+                    </code>
                   </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {endpoint.description}
-                  </p>
-                  <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                    <span>
-                      <i className="fas fa-file-code mr-1"></i>
-                      Format: {endpoint.format}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="api" className="space-y-4">
-          <div className="grid gap-4">
-            <h4 className="text-md font-semibold text-foreground">Data API Endpoints</h4>
-            {apiEndpoints.map((endpoint, index) => (
-              <Card key={index} className="border-l-4 border-l-blue-500">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Badge variant="outline" className="font-mono">
-                        {endpoint.method}
-                      </Badge>
-                      <code className="text-sm bg-muted px-2 py-1 rounded">
-                        {endpoint.path}
-                      </code>
-                    </div>
+                  <div className="flex items-center space-x-2">
                     <Button
+                      size="sm"
+                      variant="outline"
                       onClick={() => executeUtilityCall(endpoint)}
                       disabled={loading[endpoint.path]}
-                      size="sm"
-                      data-testid={`execute-${index}`}
+                      data-testid={`execute-${endpoint.path.replace('/', '')}`}
                     >
                       {loading[endpoint.path] ? (
-                        <>
-                          <i className="fas fa-spinner fa-spin mr-2"></i>
-                          Loading...
-                        </>
+                        <i className="fas fa-spinner fa-spin mr-2"></i>
                       ) : (
-                        <>
-                          <i className="fas fa-play mr-2"></i>
-                          Execute
-                        </>
+                        <i className="fas fa-play mr-2"></i>
                       )}
+                      Execute
                     </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {endpoint.description}
-                  </p>
-                  
-                  <div className="mt-3">
-                    <details className="group">
-                      <summary className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-800">
-                        Show cURL command
-                      </summary>
-                      <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-800 rounded-md">
-                        <code className="text-xs whitespace-pre-wrap">
-                          {generateCurlCommand(endpoint)}
-                        </code>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="ml-2 h-6 w-6 p-0"
-                          onClick={() => copyResponse(generateCurlCommand(endpoint))}
-                          data-testid={`copy-curl-${index}`}
-                        >
-                          <i className="fas fa-copy text-xs"></i>
-                        </Button>
-                      </div>
-                    </details>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="responses" className="space-y-4">
-          {Object.keys(responses).length === 0 ? (
-            <div className="text-center py-8">
-              <i className="fas fa-rocket text-4xl text-blue-500 mb-4"></i>
-              <p className="text-muted-foreground">
-                Execute some endpoints to see responses here
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {Object.entries(responses).map(([path, data]) => (
-                <Card key={path}>
-                  <CardHeader className="flex-row items-center justify-between space-y-0 pb-3">
-                    <CardTitle className="text-base font-mono">{path}</CardTitle>
                     <Button
-                      variant="ghost"
                       size="sm"
-                      onClick={() => copyResponse(data)}
-                      data-testid={`copy-response-${path}`}
+                      variant="ghost"
+                      onClick={() => copyResponse(generateCurlCommand(endpoint))}
+                      data-testid={`copy-curl-${endpoint.path.replace('/', '')}`}
                     >
                       <i className="fas fa-copy mr-2"></i>
-                      Copy
+                      Copy cURL
                     </Button>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="bg-muted p-4 rounded-lg max-h-64 overflow-auto">
-                      <pre className="text-sm whitespace-pre-wrap">
-                        {typeof data === 'string' ? data : JSON.stringify(data, null, 2)}
-                      </pre>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0 space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  {endpoint.description}
+                </p>
+                <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                  <span>
+                    <i className="fas fa-file-code mr-1"></i>
+                    Format: {endpoint.format}
+                  </span>
+                </div>
+                
+                {/* Response Section */}
+                {responses[endpoint.path] && (
+                  <div className="border-t pt-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <h5 className="text-sm font-medium text-foreground">Response</h5>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyResponse(responses[endpoint.path])}
+                        data-testid={`copy-response-${endpoint.path}`}
+                      >
+                        <i className="fas fa-copy text-xs"></i>
+                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+                    {endpoint.path === '/autocurd-openapi.json' ? (
+                      <div className="space-y-2">
+                        <div className="bg-green-50 dark:bg-green-950 p-3 rounded-lg border border-green-200 dark:border-green-800">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm font-medium text-green-800 dark:text-green-200">OpenAPI 3.0 Specification</p>
+                              <p className="text-xs text-green-600 dark:text-green-400">Interactive API documentation generated</p>
+                            </div>
+                            <i className="fas fa-file-alt text-green-600 dark:text-green-400"></i>
+                          </div>
+                          {responses[endpoint.path] && typeof responses[endpoint.path] === 'object' && (
+                            <div className="mt-2">
+                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div>
+                                  <span className="text-green-700 dark:text-green-300">Title:</span> 
+                                  <span className="ml-1 font-medium">{responses[endpoint.path].info?.title || 'AutoCRUD API'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-green-700 dark:text-green-300">Version:</span> 
+                                  <span className="ml-1 font-medium">{responses[endpoint.path].info?.version || '1.0.0'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-green-700 dark:text-green-300">Paths:</span> 
+                                  <span className="ml-1 font-medium">{Object.keys(responses[endpoint.path].paths || {}).length}</span>
+                                </div>
+                                <div>
+                                  <span className="text-green-700 dark:text-green-300">Schemas:</span> 
+                                  <span className="ml-1 font-medium">{Object.keys(responses[endpoint.path].components?.schemas || {}).length}</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <details className="group">
+                          <summary className="cursor-pointer text-xs font-medium text-blue-600 hover:text-blue-800">
+                            View Full OpenAPI JSON
+                          </summary>
+                          <div className="bg-muted p-3 rounded-lg max-h-48 overflow-auto mt-2">
+                            <pre className="text-xs whitespace-pre-wrap">
+                              {typeof responses[endpoint.path] === 'string' ? responses[endpoint.path] : JSON.stringify(responses[endpoint.path], null, 2)}
+                            </pre>
+                          </div>
+                        </details>
+                      </div>
+                    ) : endpoint.path === '/autocurd-sdl' ? (
+                      <div className="space-y-2">
+                        <div className="bg-purple-50 dark:bg-purple-950 p-3 rounded-lg border border-purple-200 dark:border-purple-800">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm font-medium text-purple-800 dark:text-purple-200">GraphQL Schema Definition</p>
+                              <p className="text-xs text-purple-600 dark:text-purple-400">SDL (Schema Definition Language)</p>
+                            </div>
+                            <i className="fas fa-code text-purple-600 dark:text-purple-400"></i>
+                          </div>
+                        </div>
+                        <div className="bg-muted p-3 rounded-lg max-h-48 overflow-auto">
+                          <pre className="text-xs whitespace-pre-wrap font-mono">
+                            {typeof responses[endpoint.path] === 'string' ? responses[endpoint.path] : JSON.stringify(responses[endpoint.path], null, 2)}
+                          </pre>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-muted p-3 rounded-lg max-h-48 overflow-auto">
+                        {typeof responses[endpoint.path] === 'object' ? (
+                          <div className="space-y-2">
+                            <div className="grid grid-cols-2 gap-4 text-xs mb-3">
+                              {Object.entries(responses[endpoint.path] as any).slice(0, 4).map(([key, value]) => (
+                                <div key={key} className="bg-background p-2 rounded border">
+                                  <span className="font-medium text-muted-foreground">{key}:</span>
+                                  <div className="text-foreground mt-1">
+                                    {typeof value === 'object' ? JSON.stringify(value).slice(0, 50) + '...' : String(value).slice(0, 50)}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <details className="group">
+                              <summary className="cursor-pointer text-xs font-medium text-blue-600 hover:text-blue-800">
+                                View Full JSON Response
+                              </summary>
+                              <pre className="text-xs whitespace-pre-wrap mt-2 p-2 bg-background rounded border">
+                                {JSON.stringify(responses[endpoint.path], null, 2)}
+                              </pre>
+                            </details>
+                          </div>
+                        ) : (
+                          <pre className="text-xs whitespace-pre-wrap">
+                            {responses[endpoint.path]}
+                          </pre>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
