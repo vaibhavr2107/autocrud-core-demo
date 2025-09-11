@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,60 +11,72 @@ interface MetricsSummary {
   averageResponseTime: number;
   cacheHitRate: number;
   requestsPerSecond: number;
+  totalRequests: number;
 }
 
 export default function PerformanceMetrics() {
-  const [autoRefresh, setAutoRefresh] = useState(true);
-
-  // Fetch metrics summary (calculated from metrics data)
-  const { data: summary, isLoading: summaryLoading } = useQuery<MetricsSummary>({
-    queryKey: ['metrics-summary'],
-    queryFn: async () => {
-      // Calculate summary from metrics data since autocrud doesn't provide summary endpoint
-      const metricsResponse = await fetch('/api/metric');
-      const metrics: Metric[] = await metricsResponse.json();
-      
-      if (metrics.length === 0) {
-        return {
-          averageResponseTime: 0,
-          cacheHitRate: 0,
-          requestsPerSecond: 0
-        };
-      }
-
-      const avgResponseTime = Math.round(
-        metrics.reduce((sum, m) => sum + m.responseTime, 0) / metrics.length
-      );
-      
-      const cacheHits = metrics.filter(m => m.cacheHit).length;
-      const cacheHitRate = Math.round((cacheHits / metrics.length) * 100);
-      
-      // Calculate requests per second (simple approximation)
-      const now = Date.now();
-      const recentMetrics = metrics.filter(m => 
-        m.timestamp && (now - new Date(m.timestamp).getTime()) < 60000 // last minute
-      );
-      const requestsPerSecond = Math.round(recentMetrics.length / 60);
-
-      return {
-        averageResponseTime: avgResponseTime,
-        cacheHitRate: cacheHitRate,
-        requestsPerSecond: requestsPerSecond
-      };
-    },
-    refetchInterval: autoRefresh ? 5000 : false,
-  });
-
-  // Fetch detailed metrics
-  const { data: metrics, isLoading: metricsLoading } = useQuery<Metric[]>({
-    queryKey: ['/api/metric'],
-    refetchInterval: autoRefresh ? 10000 : false,
-  });
-
   const [activeTab, setActiveTab] = useState("overview");
+  const [realtimeMetrics, setRealtimeMetrics] = useState<Metric[]>([]);
+
+  // Fetch metrics from autocrud-metrics endpoint (real-time)
+  const { data: autoCrudMetrics, isLoading: autoCrudLoading } = useQuery<any>({
+    queryKey: ['autocrud-metrics'],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/autocrud-metrics');
+        return await response.json();
+      } catch (error) {
+        console.log('AutoCRUD metrics not available, using fallback');
+        return null;
+      }
+    },
+    refetchInterval: 2000, // Real-time updates every 2 seconds
+  });
+
+  // Fetch stored metrics from /api/metric
+  const { data: storedMetrics, isLoading: storedLoading } = useQuery<Metric[]>({
+    queryKey: ['/api/metric'],
+    refetchInterval: 3000, // Update every 3 seconds
+  });
+
+  // Combine metrics from both sources
+  const allMetrics = [...(storedMetrics || []), ...realtimeMetrics];
+
+  // Calculate metrics summary
+  const summary: MetricsSummary = (() => {
+    if (allMetrics.length === 0) {
+      return {
+        averageResponseTime: 0,
+        cacheHitRate: 0,
+        requestsPerSecond: 0,
+        totalRequests: 0
+      };
+    }
+
+    const avgResponseTime = Math.round(
+      allMetrics.reduce((sum, m) => sum + m.responseTime, 0) / allMetrics.length
+    );
+    
+    const cacheHits = allMetrics.filter(m => m.cacheHit).length;
+    const cacheHitRate = Math.round((cacheHits / allMetrics.length) * 100);
+    
+    // Calculate requests per second (last minute)
+    const now = Date.now();
+    const recentMetrics = allMetrics.filter(m => 
+      m.timestamp && (now - new Date(m.timestamp).getTime()) < 60000
+    );
+    const requestsPerSecond = Math.round(recentMetrics.length / 60);
+
+    return {
+      averageResponseTime: avgResponseTime,
+      cacheHitRate: cacheHitRate,
+      requestsPerSecond: requestsPerSecond,
+      totalRequests: allMetrics.length
+    };
+  })();
 
   // Calculate endpoint stats
-  const endpointStats = metrics?.reduce((acc, metric) => {
+  const endpointStats = allMetrics.reduce((acc, metric) => {
     const key = `${metric.method} ${metric.endpoint}`;
     if (!acc[key]) {
       acc[key] = {
@@ -86,7 +99,7 @@ export default function PerformanceMetrics() {
     cacheHits: number;
   }>);
 
-  const sortedEndpoints = Object.values(endpointStats || {})
+  const sortedEndpoints = Object.values(endpointStats)
     .map(stat => ({
       ...stat,
       avgResponseTime: Math.round(stat.totalTime / stat.count),
@@ -96,7 +109,31 @@ export default function PerformanceMetrics() {
     .slice(0, 10);
 
   // Recent activity (last 20 requests)
-  const recentActivity = metrics?.slice(-20).reverse() || [];
+  const recentActivity = allMetrics.slice(-20).reverse();
+
+  // Trigger sample API calls to generate metrics
+  const triggerSampleCalls = async () => {
+    const endpoints = [
+      '/api/user',
+      '/api/product', 
+      '/api/order',
+      '/api/schema',
+      '/autocrud-health',
+      '/autocrud-info',
+      '/autocrud-list'
+    ];
+
+    try {
+      // Make parallel requests to all endpoints
+      await Promise.allSettled(
+        endpoints.map(endpoint => 
+          fetch(endpoint).catch(() => {})
+        )
+      );
+    } catch (error) {
+      console.log('Sample API calls completed');
+    }
+  };
 
   const formatTime = (ms: number) => {
     if (ms < 1000) return `${ms}ms`;
@@ -115,24 +152,28 @@ export default function PerformanceMetrics() {
 
   return (
     <div className="space-y-6">
-      {/* Header with auto-refresh toggle */}
+      {/* Header with real-time indicator */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-foreground">Performance Metrics</h3>
         <div className="flex items-center space-x-4">
-          <Button
-            variant={autoRefresh ? "default" : "outline"}
-            size="sm"
-            onClick={() => setAutoRefresh(!autoRefresh)}
-            data-testid="button-auto-refresh"
-          >
-            <i className={`fas fa-${autoRefresh ? 'pause' : 'play'} mr-2`}></i>
-            {autoRefresh ? 'Pause' : 'Resume'} Auto-refresh
-          </Button>
+          <h3 className="text-lg font-semibold text-foreground">Performance Metrics</h3>
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-sm text-muted-foreground">Real-time tracking</span>
+          </div>
         </div>
+        <Button
+          onClick={triggerSampleCalls}
+          variant="outline"
+          size="sm"
+          data-testid="button-trigger-sample-calls"
+        >
+          <i className="fas fa-play mr-2"></i>
+          Generate Sample Metrics
+        </Button>
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="metric-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -140,7 +181,7 @@ export default function PerformanceMetrics() {
               <i className="fas fa-tachometer-alt text-primary text-xl"></i>
             </div>
             <div className="text-3xl font-bold text-primary mb-2" data-testid="metric-response-time">
-              {summaryLoading ? "..." : `${summary?.averageResponseTime || 0}ms`}
+              {summary.averageResponseTime}ms
             </div>
             <div className="text-sm text-muted-foreground">Average API response</div>
           </CardContent>
@@ -153,7 +194,7 @@ export default function PerformanceMetrics() {
               <i className="fas fa-memory text-accent text-xl"></i>
             </div>
             <div className="text-3xl font-bold text-accent mb-2" data-testid="metric-cache-hit-rate">
-              {summaryLoading ? "..." : `${summary?.cacheHitRate || 0}%`}
+              {summary.cacheHitRate}%
             </div>
             <div className="text-sm text-muted-foreground">Cache efficiency</div>
           </CardContent>
@@ -166,12 +207,44 @@ export default function PerformanceMetrics() {
               <i className="fas fa-chart-line text-orange-400 text-xl"></i>
             </div>
             <div className="text-3xl font-bold text-orange-400 mb-2" data-testid="metric-requests-per-sec">
-              {summaryLoading ? "..." : `${summary?.requestsPerSecond || 0}`}
+              {summary.requestsPerSecond}
             </div>
             <div className="text-sm text-muted-foreground">Current throughput</div>
           </CardContent>
         </Card>
+
+        <Card className="metric-card">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-semibold text-foreground">Total Requests</h4>
+              <i className="fas fa-server text-blue-400 text-xl"></i>
+            </div>
+            <div className="text-3xl font-bold text-blue-400 mb-2" data-testid="metric-total-requests">
+              {summary.totalRequests}
+            </div>
+            <div className="text-sm text-muted-foreground">All time requests</div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* AutoCRUD Metrics Status */}
+      {autoCrudMetrics && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <i className="fas fa-database text-primary"></i>
+              <span>AutoCRUD Real-time Metrics</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <pre className="text-sm whitespace-pre-wrap code-font">
+                {JSON.stringify(autoCrudMetrics, null, 2)}
+              </pre>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Detailed Metrics */}
       <Card>
@@ -192,8 +265,8 @@ export default function PerformanceMetrics() {
                   <h4 className="font-semibold text-foreground mb-3">Request Distribution</h4>
                   <div className="space-y-2">
                     {["GET", "POST", "PATCH", "DELETE"].map(method => {
-                      const count = metrics?.filter(m => m.method === method).length || 0;
-                      const total = metrics?.length || 1;
+                      const count = allMetrics.filter(m => m.method === method).length;
+                      const total = allMetrics.length || 1;
                       const percentage = Math.round((count / total) * 100);
                       
                       return (
@@ -216,24 +289,24 @@ export default function PerformanceMetrics() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-foreground">Total Requests</span>
-                      <span className="font-semibold" data-testid="total-requests">{metrics?.length || 0}</span>
+                      <span className="font-semibold" data-testid="total-requests">{allMetrics.length}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-foreground">Cache Hits</span>
                       <span className="font-semibold text-accent" data-testid="cache-hits">
-                        {metrics?.filter(m => m.cacheHit).length || 0}
+                        {allMetrics.filter(m => m.cacheHit).length}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-foreground">Fastest Response</span>
                       <span className="font-semibold text-primary" data-testid="fastest-response">
-                        {metrics?.length ? `${Math.min(...metrics.map(m => m.responseTime))}ms` : "N/A"}
+                        {allMetrics.length ? `${Math.min(...allMetrics.map(m => m.responseTime))}ms` : "N/A"}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-foreground">Slowest Response</span>
                       <span className="font-semibold text-orange-400" data-testid="slowest-response">
-                        {metrics?.length ? `${Math.max(...metrics.map(m => m.responseTime))}ms` : "N/A"}
+                        {allMetrics.length ? `${Math.max(...allMetrics.map(m => m.responseTime))}ms` : "N/A"}
                       </span>
                     </div>
                   </div>
@@ -243,8 +316,12 @@ export default function PerformanceMetrics() {
             
             <TabsContent value="endpoints" className="space-y-4">
               <h4 className="font-semibold text-foreground">Top Endpoints by Request Count</h4>
-              {metricsLoading ? (
-                <div className="text-center py-8 text-muted-foreground">Loading endpoint statistics...</div>
+              {sortedEndpoints.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <i className="fas fa-chart-bar text-4xl mb-4"></i>
+                  <p>No endpoint data available yet</p>
+                  <p className="text-sm mt-2">Make some API calls to see endpoint statistics</p>
+                </div>
               ) : (
                 <div className="space-y-3">
                   {sortedEndpoints.map((endpoint, index) => (
@@ -278,12 +355,16 @@ export default function PerformanceMetrics() {
             
             <TabsContent value="activity" className="space-y-4">
               <h4 className="font-semibold text-foreground">Recent API Requests</h4>
-              {metricsLoading ? (
-                <div className="text-center py-8 text-muted-foreground">Loading recent activity...</div>
+              {recentActivity.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <i className="fas fa-activity text-4xl mb-4"></i>
+                  <p>No recent activity to display</p>
+                  <p className="text-sm mt-2">API requests will appear here in real-time</p>
+                </div>
               ) : (
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {recentActivity.map((metric, index) => (
-                    <div key={metric.id} 
+                    <div key={metric.id || index} 
                          className="flex items-center justify-between p-3 bg-muted rounded-lg"
                          data-testid={`activity-${index}`}>
                       <div className="flex items-center space-x-3">
@@ -308,12 +389,6 @@ export default function PerformanceMetrics() {
                       </div>
                     </div>
                   ))}
-                  
-                  {recentActivity.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No recent activity to display
-                    </div>
-                  )}
                 </div>
               )}
             </TabsContent>
@@ -321,23 +396,39 @@ export default function PerformanceMetrics() {
         </CardContent>
       </Card>
 
-      {/* Real-time Chart Placeholder */}
+      {/* Real-time Performance Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Real-time Performance Chart</CardTitle>
+          <CardTitle className="flex items-center justify-between">
+            <span>Real-time Performance Monitor</span>
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span>Live Data</span>
+            </div>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-64 bg-muted/50 rounded-lg border-2 border-dashed border-border flex items-center justify-center">
             <div className="text-center">
               <i className="fas fa-chart-area text-4xl text-primary mb-4"></i>
               <p className="text-muted-foreground mb-2">Live performance metrics visualization</p>
-              <p className="text-sm text-muted-foreground">
-                Chart showing response times, cache hits, and throughput over time
+              <p className="text-sm text-muted-foreground mb-4">
+                Real-time tracking of response times, cache hits, and throughput
               </p>
-              <Button variant="outline" className="mt-4" data-testid="button-refresh-metrics">
-                <i className="fas fa-sync-alt mr-2"></i>
-                Refresh Data
-              </Button>
+              <div className="flex items-center justify-center space-x-4 text-sm">
+                <div className="flex items-center space-x-2">
+                  <span className="text-muted-foreground">Avg Response:</span>
+                  <span className="font-semibold text-primary">{summary.averageResponseTime}ms</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-muted-foreground">Cache Rate:</span>
+                  <span className="font-semibold text-accent">{summary.cacheHitRate}%</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-muted-foreground">RPS:</span>
+                  <span className="font-semibold text-orange-400">{summary.requestsPerSecond}</span>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
