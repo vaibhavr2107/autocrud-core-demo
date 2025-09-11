@@ -1,9 +1,9 @@
 import { useState } from "react";
-import Navigation from "@/components/navigation";
-import SchemaBuilder from "@/components/schema-builder";
-import RestExplorer from "@/components/rest-explorer";
-import GraphQLPlayground from "@/components/graphql-playground";
-import PerformanceMetrics from "@/components/performance-metrics";
+import Navigation from "@/components/navigation/navigation";
+import SchemaBuilder from "@/components/dashboard/schema-builder";
+import RestExplorer from "@/components/dashboard/rest-explorer";
+import GraphQLPlayground from "@/components/dashboard/graphql-playground";
+import PerformanceMetrics from "@/components/dashboard/performance-metrics";
 import { Button } from "@/components/ui/button";
 
 type DashboardTab = "schema" | "rest" | "graphql" | "metrics";

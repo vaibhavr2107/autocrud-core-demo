@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Questrial:wght@400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,9 +37,9 @@
   --sidebar-accent-foreground: hsl(0, 0%, 100%);
   --sidebar-border: hsl(214.3, 31.8%, 91.4%);
   --sidebar-ring: hsl(217, 91%, 60%);
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans: 'Questrial', 'Inter', system-ui, sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-mono: 'Source Code Pro', 'JetBrains Mono', monospace;
   --radius: 0.75rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(0, 0%, 0% / 0.05);
   --shadow-xs: 0px 2px 0px 0px hsl(0, 0%, 0% / 0.05);
@@ -119,4 +121,62 @@
 
 .code-font {
   font-family: var(--font-mono);
+}
+
+/* Reduced font sizes for better readability */
+body {
+  font-size: 14px;
+}
+
+h1 {
+  font-size: 2.25rem; /* 36px, reduced from default 2.5rem */
+}
+
+h2 {
+  font-size: 1.75rem; /* 28px, reduced from default 2rem */
+}
+
+h3 {
+  font-size: 1.375rem; /* 22px, reduced from default 1.5rem */
+}
+
+h4 {
+  font-size: 1.125rem; /* 18px, reduced from default 1.25rem */
+}
+
+p, .text-base {
+  font-size: 14px; /* Reduced from default 16px */
+}
+
+.text-sm {
+  font-size: 12px; /* Reduced from default 14px */
+}
+
+.text-xs {
+  font-size: 10px; /* Reduced from default 12px */
+}
+
+.text-lg {
+  font-size: 16px; /* Reduced from default 18px */
+}
+
+.text-xl {
+  font-size: 18px; /* Reduced from default 20px */
+}
+
+.text-2xl {
+  font-size: 22px; /* Reduced from default 24px */
+}
+
+.text-3xl {
+  font-size: 26px; /* Reduced from default 30px */
+}
+
+.text-4xl {
+  font-size: 30px; /* Reduced from default 36px */
+}
+
+/* Apply Questrial to all text by default */
+* {
+  font-family: var(--font-sans);
 }

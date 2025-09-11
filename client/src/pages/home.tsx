@@ -1,9 +1,9 @@
-import Navigation from "@/components/navigation";
-import HeroSection from "@/components/hero-section";
-import FeaturesSection from "@/components/features-section";
-import DemoTabs from "@/components/demo-tabs";
-import LiveDemoSection from "@/components/live-demo-section";
-import QuickStart from "@/components/quick-start";
+import Navigation from "@/components/navigation/navigation";
+import HeroSection from "@/components/homepage/hero-section";
+import FeaturesSection from "@/components/homepage/features-section";
+import DemoTabs from "@/components/dashboard/demo-tabs";
+import LiveDemoSection from "@/components/homepage/live-demo-section";
+import QuickStart from "@/components/homepage/quick-start";
 
 export default function Home() {
   return (
