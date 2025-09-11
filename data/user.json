@@ -1,11 +1,11 @@
 [
   {
     "email": "test@example.com",
-    "name": "Test User",
+    "name": "Updated via GraphQL",
     "role": "admin",
     "id": "66f64cb9-48da-428c-9147-3983fb05ec37",
-    "createdAt": "2025-09-11T19:29:07.309Z",
-    "updatedAt": "2025-09-11T19:29:07.309Z"
+    "createdAt": "2025-09-11T19:40:43.436Z",
+    "updatedAt": "2025-09-11T20:13:05.458Z"
   },
   {
     "email": "test@example.com",
@@ -14,5 +14,26 @@
     "id": "66f64cb9-48da-428c-9147-3983fb05ec37",
     "createdAt": "2025-09-11T19:40:43.436Z",
     "updatedAt": "2025-09-11T19:40:43.436Z"
+  },
+  {
+    "email": "test@graphql.com",
+    "name": "GraphQL Test User",
+    "id": "e5ee579f-732d-4b1d-b2b2-fe01155730b9",
+    "createdAt": "2025-09-11T20:11:09.962Z",
+    "updatedAt": "2025-09-11T20:11:09.962Z"
+  },
+  {
+    "email": "newuser@example.com",
+    "name": "New User",
+    "id": "cb269a22-ddde-4497-9fd7-a3cc2084697f",
+    "createdAt": "2025-09-11T20:11:30.888Z",
+    "updatedAt": "2025-09-11T20:11:30.888Z"
+  },
+  {
+    "email": "newuser@example.com",
+    "name": "New User",
+    "id": "36a1d8e3-d72d-4a9e-a25c-d9932be04de9",
+    "createdAt": "2025-09-11T20:16:54.422Z",
+    "updatedAt": "2025-09-11T20:16:54.422Z"
   }
 ]

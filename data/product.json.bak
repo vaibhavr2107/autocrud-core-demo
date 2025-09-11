@@ -8,5 +8,29 @@
     "id": 100,
     "createdAt": "2025-09-11T19:29:08.443Z",
     "updatedAt": "2025-09-11T19:29:08.443Z"
+  },
+  {
+    "name": "Test Product via REST",
+    "price": 29.99,
+    "category": "Test",
+    "id": 101,
+    "createdAt": "2025-09-11T20:13:29.252Z",
+    "updatedAt": "2025-09-11T20:13:29.252Z"
+  },
+  {
+    "name": "GraphQL Test Product",
+    "price": 49.99,
+    "category": "GraphQL",
+    "id": 102,
+    "createdAt": "2025-09-11T20:13:30.302Z",
+    "updatedAt": "2025-09-11T20:13:30.302Z"
+  },
+  {
+    "name": "Final Test Product",
+    "price": 99.99,
+    "category": "Final Test",
+    "id": 103,
+    "createdAt": "2025-09-11T20:18:25.793Z",
+    "updatedAt": "2025-09-11T20:18:25.793Z"
   }
 ]

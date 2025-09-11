@@ -21,6 +21,39 @@ export default function UtilitySection() {
 
   const utilityEndpoints: UtilityEndpoint[] = [
     {
+      path: '/autocurd-health',
+      description: 'Check autocrud service health status',
+      method: 'GET',
+      format: 'json'
+    },
+    {
+      path: '/autocurd-info',
+      description: 'Get autocrud version and configuration summary',
+      method: 'GET',
+      format: 'json'
+    },
+    {
+      path: '/autocurd-list',
+      description: 'List all available REST and GraphQL endpoints',
+      method: 'GET',
+      format: 'json'
+    },
+    {
+      path: '/autocurd-openapi.json',
+      description: 'Get OpenAPI 3.0 specification for REST endpoints',
+      method: 'GET',
+      format: 'openapi'
+    },
+    {
+      path: '/autocurd-sdl',
+      description: 'Get GraphQL Schema Definition Language',
+      method: 'GET',
+      format: 'text'
+    }
+  ];
+
+  const apiEndpoints: UtilityEndpoint[] = [
+    {
       path: '/api/user',
       description: 'Get all users in the system',
       method: 'GET',
@@ -141,15 +174,75 @@ export default function UtilitySection() {
         </p>
       </div>
 
-      <Tabs defaultValue="endpoints" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="endpoints" data-testid="tab-endpoints">Endpoints</TabsTrigger>
+      <Tabs defaultValue="utility" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="utility" data-testid="tab-utility">Utility</TabsTrigger>
+          <TabsTrigger value="api" data-testid="tab-api">API Endpoints</TabsTrigger>
           <TabsTrigger value="responses" data-testid="tab-responses">Responses</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="endpoints" className="space-y-4">
+        <TabsContent value="utility" className="space-y-4">
           <div className="grid gap-4">
+            <h4 className="text-md font-semibold text-foreground">AutoCRUD Utility Endpoints</h4>
             {utilityEndpoints.map((endpoint, index) => (
+              <Card key={index} className="border-l-4 border-l-blue-500">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <Badge variant="outline" className="font-mono">
+                        {endpoint.method}
+                      </Badge>
+                      <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                        {endpoint.path}
+                      </code>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => executeUtilityCall(endpoint)}
+                        disabled={loading[endpoint.path]}
+                        data-testid={`execute-${endpoint.path.replace('/', '')}`}
+                      >
+                        {loading[endpoint.path] ? (
+                          <i className="fas fa-spinner fa-spin mr-2"></i>
+                        ) : (
+                          <i className="fas fa-play mr-2"></i>
+                        )}
+                        Execute
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => copyResponse(generateCurlCommand(endpoint))}
+                        data-testid={`copy-curl-${endpoint.path.replace('/', '')}`}
+                      >
+                        <i className="fas fa-copy mr-2"></i>
+                        Copy cURL
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {endpoint.description}
+                  </p>
+                  <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                    <span>
+                      <i className="fas fa-file-code mr-1"></i>
+                      Format: {endpoint.format}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="api" className="space-y-4">
+          <div className="grid gap-4">
+            <h4 className="text-md font-semibold text-foreground">Data API Endpoints</h4>
+            {apiEndpoints.map((endpoint, index) => (
               <Card key={index} className="border-l-4 border-l-blue-500">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">

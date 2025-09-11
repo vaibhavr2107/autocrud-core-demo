@@ -16,8 +16,17 @@ export default function SchemaBuilder() {
   const [schemaJson, setSchemaJson] = useState("");
   const { toast } = useToast();
 
-  // Fetch schemas
-  const { data: schemas, isLoading } = useQuery<Schema[]>({
+  // Configuration schemas (read-only)
+  const configSchemas = [
+    { name: "user", type: "configuration", description: "User entity schema" },
+    { name: "product", type: "configuration", description: "Product entity schema" },
+    { name: "order", type: "configuration", description: "Order entity schema" },
+    { name: "schema", type: "configuration", description: "Schema entity schema" },
+    { name: "metric", type: "configuration", description: "Metric entity schema" }
+  ];
+
+  // Fetch user-created schemas
+  const { data: userSchemas, isLoading } = useQuery<Schema[]>({
     queryKey: ['/api/schema'],
   });
 
@@ -94,6 +103,28 @@ export default function SchemaBuilder() {
     setIsCreating(false);
   };
 
+  const handleSelectConfigSchema = (configSchema: any) => {
+    // For config schemas, we'll display them as read-only
+    setSelectedSchema({ 
+      ...configSchema, 
+      id: configSchema.name, 
+      isReadOnly: true,
+      definition: {
+        name: configSchema.name,
+        type: "configuration",
+        description: configSchema.description,
+        note: "This is a system configuration schema and cannot be edited."
+      }
+    });
+    setIsCreating(false);
+    setSchemaJson(JSON.stringify({
+      name: configSchema.name,
+      type: "configuration", 
+      description: configSchema.description,
+      note: "This is a system configuration schema and cannot be edited. View the actual schema file in the schemas/ directory."
+    }, null, 2));
+  };
+
   const handleUpdateSchema = () => {
     if (!selectedSchema) return;
     
@@ -167,34 +198,75 @@ export default function SchemaBuilder() {
           </Button>
         </div>
         
-        <div className="space-y-3">
-          {schemas?.map((schema) => (
-            <Card
-              key={schema.id}
-              className={`cursor-pointer transition-colors ${
-                selectedSchema?.id === schema.id ? "border-primary bg-primary/5" : "hover:bg-muted/50"
-              }`}
-              onClick={() => handleSelectSchema(schema)}
-              data-testid={`schema-item-${schema.name}`}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-semibold text-foreground">{schema.name}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {Object.keys((schema.definition as any)?.fields || {}).length} fields
-                    </p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant={schema.isActive ? "default" : "secondary"}>
-                      {schema.isActive ? "Active" : "Inactive"}
-                    </Badge>
-                    <i className="fas fa-chevron-right text-muted-foreground"></i>
-                  </div>
+        <div className="space-y-4">
+          {/* Configuration Schemas (Read-only) */}
+          <div>
+            <h4 className="text-sm font-medium text-muted-foreground mb-3">Configuration Schemas (Read-only)</h4>
+            <div className="space-y-2">
+              {configSchemas.map((schema) => (
+                <Card
+                  key={schema.name}
+                  className="cursor-pointer transition-colors hover:bg-muted/50"
+                  onClick={() => handleSelectConfigSchema(schema)}
+                  data-testid={`config-schema-${schema.name}`}
+                >
+                  <CardContent className="p-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h5 className="font-medium text-foreground">{schema.name}</h5>
+                        <p className="text-xs text-muted-foreground">{schema.description}</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="outline" className="text-xs">System</Badge>
+                        <i className="fas fa-lock text-muted-foreground text-xs"></i>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* User-created Schemas (Editable) */}
+          <div>
+            <h4 className="text-sm font-medium text-muted-foreground mb-3">User-created Schemas (Editable)</h4>
+            <div className="space-y-2">
+              {userSchemas && userSchemas.length > 0 ? (
+                userSchemas.map((schema: any) => (
+                  <Card
+                    key={schema.id}
+                    className={`cursor-pointer transition-colors ${
+                      selectedSchema?.id === schema.id ? "border-primary bg-primary/5" : "hover:bg-muted/50"
+                    }`}
+                    onClick={() => handleSelectSchema(schema)}
+                    data-testid={`user-schema-${schema.name}`}
+                  >
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h5 className="font-medium text-foreground">{schema.name}</h5>
+                          <p className="text-xs text-muted-foreground">
+                            {Object.keys((schema.definition as any)?.fields || {}).length} fields
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant={schema.isActive ? "default" : "secondary"} className="text-xs">
+                            {schema.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                          <i className="fas fa-chevron-right text-muted-foreground"></i>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="text-center py-6 text-muted-foreground text-sm">
+                  <i className="fas fa-plus-circle text-2xl mb-2"></i>
+                  <p>No user schemas yet. Create your first schema!</p>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

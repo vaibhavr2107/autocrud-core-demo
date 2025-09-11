@@ -24,8 +24,8 @@ export default function GraphQLPlayground() {
   }
 }`);
   
-  const [mutation, setMutation] = useState(`mutation CreateUser($input: UserInsert!) {
-  userCreate(input: $input) {
+  const [mutation, setMutation] = useState(`mutation CreateUser($input: JSON!) {
+  createUser(input: $input) {
     id
     email
     name
@@ -140,8 +140,8 @@ export default function GraphQLPlayground() {
   const predefinedMutations = [
     {
       name: "Create User",
-      mutation: `mutation CreateUser($input: UserInsert!) {
-  userCreate(input: $input) {
+      mutation: `mutation CreateUser($input: JSON!) {
+  createUser(input: $input) {
     id
     email
     name
@@ -156,8 +156,8 @@ export default function GraphQLPlayground() {
     },
     {
       name: "Update User",
-      mutation: `mutation UpdateUser($id: ID!, $input: UserUpdate!) {
-  userUpdate(id: $id, input: $input) {
+      mutation: `mutation UpdateUser($id: ID!, $input: JSON!) {
+  updateUser(id: $id, input: $input) {
     id
     email
     name
