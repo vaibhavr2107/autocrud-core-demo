@@ -33,12 +33,6 @@ PATCH /api/user/:id`,
     },
   ];
 
-  const adapters = [
-    { name: "File", icon: "fas fa-file", color: "text-yellow-500", desc: "JSON files" },
-    { name: "SQLite", icon: "fas fa-database", color: "text-blue-500", desc: "better-sqlite3" },
-    { name: "PostgreSQL", icon: "fas fa-server", color: "text-green-500", desc: "Production ready" },
-    { name: "MongoDB", icon: "fas fa-leaf", color: "text-green-600", desc: "NoSQL support" },
-  ];
 
   return (
     <section id="features" className="py-20 bg-muted/20">
