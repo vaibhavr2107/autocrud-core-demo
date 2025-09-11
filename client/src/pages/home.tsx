@@ -2,6 +2,7 @@ import Navigation from "@/components/navigation";
 import HeroSection from "@/components/hero-section";
 import FeaturesSection from "@/components/features-section";
 import DemoTabs from "@/components/demo-tabs";
+import LiveDemoSection from "@/components/live-demo-section";
 import QuickStart from "@/components/quick-start";
 
 export default function Home() {
@@ -10,7 +11,7 @@ export default function Home() {
       <Navigation />
       <HeroSection />
       <FeaturesSection />
-      <DemoTabs />
+      <LiveDemoSection />
       <QuickStart />
       
       {/* Footer */}

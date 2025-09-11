@@ -218,17 +218,20 @@ function GraphQLDemo() {
     }
     pagination: { limit: 10 }
   ) {
-    id
-    email
-    name
-    role
-    createdAt
+    nodes {
+      id
+      email
+      name
+      role
+      createdAt
+    }
+    totalCount
   }
 }`}
           </pre>
         </div>
-        <Button className="mt-4 bg-pink-500 text-white hover:bg-pink-600">
-          <i className="fas fa-play mr-2"></i>Execute Query
+        <Button className="mt-4 bg-pink-500 text-white hover:bg-pink-600" onClick={() => window.open('/dashboard', '_blank')}>
+          <i className="fas fa-play mr-2"></i>Try Live Demo
         </Button>
       </div>
       <div>
@@ -237,15 +240,18 @@ function GraphQLDemo() {
           <pre className="text-foreground whitespace-pre-wrap">
 {`{
   "data": {
-    "userList": [
-      {
-        "id": "550e8400-e29b-41d4-a716-446655440000",
-        "email": "john@example.com",
-        "name": "John Doe", 
-        "role": "admin",
-        "createdAt": "2024-01-15T10:30:00Z"
-      }
-    ]
+    "userList": {
+      "nodes": [
+        {
+          "id": "550e8400-e29b-41d4-a716-446655440000",
+          "email": "john@example.com",
+          "name": "John Doe", 
+          "role": "admin",
+          "createdAt": "2024-01-15T10:30:00Z"
+        }
+      ],
+      "totalCount": 1
+    }
   }
 }`}
           </pre>
