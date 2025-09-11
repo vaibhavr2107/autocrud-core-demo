@@ -23,11 +23,14 @@ export default function GraphQLPlayground() {
     }
     pagination: { limit: 10 }
   ) {
-    id
-    email
-    name
-    role
-    createdAt
+    nodes {
+      id
+      email
+      name
+      role
+      createdAt
+    }
+    totalCount
   }
 }`);
   
@@ -115,11 +118,14 @@ export default function GraphQLPlayground() {
       name: "List Users",
       query: `query GetUsers {
   userList(pagination: { limit: 10 }) {
-    id
-    email
-    name
-    role
-    createdAt
+    nodes {
+      id
+      email
+      name
+      role
+      createdAt
+    }
+    totalCount
   }
 }`,
     },
@@ -145,10 +151,13 @@ export default function GraphQLPlayground() {
     filter: { role: { eq: $role } }
     pagination: { limit: 5 }
   ) {
-    id
-    email
-    name
-    role
+    nodes {
+      id
+      email
+      name
+      role
+    }
+    totalCount
   }
 }`,
       variables: `{

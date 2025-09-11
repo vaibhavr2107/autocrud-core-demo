@@ -18,7 +18,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   await apolloServer.start();
-  apolloServer.applyMiddleware({ app, path: '/graphql' });
+  apolloServer.applyMiddleware({ app: app as any, path: '/graphql' });
 
   // Middleware to track metrics
   app.use("/api", async (req, res, next) => {
