@@ -17,38 +17,25 @@ interface GraphQLResponse {
 
 export default function GraphQLPlayground() {
   const [query, setQuery] = useState(`query GetUsers {
-  userList(
-    filter: {
-      role: { eq: "admin" }
-    }
-    pagination: { limit: 10 }
-  ) {
-    nodes {
-      id
-      email
-      name
-      role
-      createdAt
-    }
-    totalCount
-  }
-}`);
-  
-  const [mutation, setMutation] = useState(`mutation CreateUser($input: UserInput!) {
-  createUser(input: $input) {
+  userList {
     id
     email
     name
-    role
-    createdAt
+  }
+}`);
+  
+  const [mutation, setMutation] = useState(`mutation CreateUser($input: UserInsert!) {
+  userCreate(input: $input) {
+    id
+    email
+    name
   }
 }`);
 
   const [variables, setVariables] = useState(`{
   "input": {
     "email": "newuser@example.com",
-    "name": "New User",
-    "role": "user"
+    "name": "New User"
   }
 }`);
 
@@ -117,15 +104,10 @@ export default function GraphQLPlayground() {
     {
       name: "List Users",
       query: `query GetUsers {
-  userList(pagination: { limit: 10 }) {
-    nodes {
-      id
-      email
-      name
-      role
-      createdAt
-    }
-    totalCount
+  userList {
+    id
+    email
+    name
   }
 }`,
     },
@@ -136,32 +118,21 @@ export default function GraphQLPlayground() {
     id
     email
     name
-    role
-    createdAt
   }
 }`,
       variables: `{
-  "id": "user-1"
+  "id": "66f64cb9-48da-428c-9147-3983fb05ec37"
 }`,
     },
     {
-      name: "Filter Users by Role",
-      query: `query FilterUsers($role: String!) {
-  userList(
-    filter: { role: { eq: $role } }
-    pagination: { limit: 5 }
-  ) {
-    nodes {
-      id
-      email
-      name
-      role
-    }
-    totalCount
+      name: "List Products",
+      query: `query GetProducts {
+  productList {
+    id
+    name
+    price
+    description
   }
-}`,
-      variables: `{
-  "role": "admin"
 }`,
     },
   ];
@@ -169,36 +140,31 @@ export default function GraphQLPlayground() {
   const predefinedMutations = [
     {
       name: "Create User",
-      mutation: `mutation CreateUser($input: UserInput!) {
-  createUser(input: $input) {
+      mutation: `mutation CreateUser($input: UserInsert!) {
+  userCreate(input: $input) {
     id
     email
     name
-    role
-    createdAt
   }
 }`,
       variables: `{
   "input": {
     "email": "newuser@example.com",
-    "name": "New User",
-    "role": "user"
+    "name": "New User"
   }
 }`,
     },
     {
       name: "Update User",
-      mutation: `mutation UpdateUser($id: ID!, $input: UserInput!) {
-  updateUser(id: $id, input: $input) {
+      mutation: `mutation UpdateUser($id: ID!, $input: UserUpdate!) {
+  userUpdate(id: $id, input: $input) {
     id
     email
     name
-    role
-    updatedAt
   }
 }`,
       variables: `{
-  "id": "user-1",
+  "id": "66f64cb9-48da-428c-9147-3983fb05ec37",
   "input": {
     "name": "Updated Name"
   }

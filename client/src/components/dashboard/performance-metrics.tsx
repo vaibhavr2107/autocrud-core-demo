@@ -15,9 +15,42 @@ interface MetricsSummary {
 export default function PerformanceMetrics() {
   const [autoRefresh, setAutoRefresh] = useState(true);
 
-  // Fetch metrics summary
+  // Fetch metrics summary (calculated from metrics data)
   const { data: summary, isLoading: summaryLoading } = useQuery<MetricsSummary>({
-    queryKey: ['/api/metric/summary'],
+    queryKey: ['metrics-summary'],
+    queryFn: async () => {
+      // Calculate summary from metrics data since autocrud doesn't provide summary endpoint
+      const metricsResponse = await fetch('/api/metric');
+      const metrics: Metric[] = await metricsResponse.json();
+      
+      if (metrics.length === 0) {
+        return {
+          averageResponseTime: 0,
+          cacheHitRate: 0,
+          requestsPerSecond: 0
+        };
+      }
+
+      const avgResponseTime = Math.round(
+        metrics.reduce((sum, m) => sum + m.responseTime, 0) / metrics.length
+      );
+      
+      const cacheHits = metrics.filter(m => m.cacheHit).length;
+      const cacheHitRate = Math.round((cacheHits / metrics.length) * 100);
+      
+      // Calculate requests per second (simple approximation)
+      const now = Date.now();
+      const recentMetrics = metrics.filter(m => 
+        m.timestamp && (now - new Date(m.timestamp).getTime()) < 60000 // last minute
+      );
+      const requestsPerSecond = Math.round(recentMetrics.length / 60);
+
+      return {
+        averageResponseTime: avgResponseTime,
+        cacheHitRate: cacheHitRate,
+        requestsPerSecond: requestsPerSecond
+      };
+    },
     refetchInterval: autoRefresh ? 5000 : false,
   });
 

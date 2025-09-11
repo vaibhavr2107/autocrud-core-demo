@@ -21,31 +21,31 @@ export default function UtilitySection() {
 
   const utilityEndpoints: UtilityEndpoint[] = [
     {
-      path: '/api/autocrud/health',
+      path: '/api/autocurd-health',
       description: 'Check autocrud service health status',
       method: 'GET',
       format: 'json'
     },
     {
-      path: '/api/autocrud/info',
+      path: '/api/autocurd-info',
       description: 'Get autocrud version and configuration summary',
       method: 'GET',
       format: 'json'
     },
     {
-      path: '/api/autocrud/list',
+      path: '/api/autocurd-list',
       description: 'List all available REST and GraphQL endpoints',
       method: 'GET',
       format: 'json'
     },
     {
-      path: '/api/autocrud/openapi.json',
+      path: '/api/autocurd-openapi.json',
       description: 'Get OpenAPI 3.0 specification for REST endpoints',
       method: 'GET',
       format: 'openapi'
     },
     {
-      path: '/api/autocrud/sdl',
+      path: '/api/autocurd-sdl',
       description: 'Get GraphQL Schema Definition Language',
       method: 'GET',
       format: 'text'
