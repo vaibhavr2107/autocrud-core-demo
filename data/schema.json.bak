@@ -152,5 +152,39 @@
     "id": "4a3d4c97-180b-42b3-9658-499414f8fe3c",
     "createdAt": "2025-09-11T20:37:34.909Z",
     "updatedAt": "2025-09-11T20:37:34.909Z"
+  },
+  {
+    "name": "example",
+    "definition": {
+      "name": "example",
+      "primaryKey": {
+        "name": "id",
+        "auto": true,
+        "strategy": "uuid",
+        "type": "string"
+      },
+      "timestamps": true,
+      "fields": {
+        "id": {
+          "type": "string",
+          "required": true
+        },
+        "email": {
+          "type": "string",
+          "required": true
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "default": "user"
+        }
+      }
+    },
+    "isActive": true,
+    "id": "abf5ec6f-c48e-4b51-bd9b-60e32ba5fae0",
+    "createdAt": "2025-09-11T20:43:09.696Z",
+    "updatedAt": "2025-09-11T20:43:09.696Z"
   }
 ]
