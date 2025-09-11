@@ -4,9 +4,10 @@ import SchemaBuilder from "@/components/dashboard/schema-builder";
 import RestExplorer from "@/components/dashboard/rest-explorer";
 import GraphQLPlayground from "@/components/dashboard/graphql-playground";
 import PerformanceMetrics from "@/components/dashboard/performance-metrics";
+import UtilitySection from "@/components/dashboard/utility-section";
 import { Button } from "@/components/ui/button";
 
-type DashboardTab = "schema" | "rest" | "graphql" | "metrics";
+type DashboardTab = "schema" | "rest" | "graphql" | "metrics" | "utility";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<DashboardTab>("schema");
@@ -16,6 +17,7 @@ export default function Dashboard() {
     { id: "rest" as const, label: "REST Explorer", icon: "fas fa-globe" },
     { id: "graphql" as const, label: "GraphQL Playground", icon: "fas fa-project-diagram" },
     { id: "metrics" as const, label: "Performance Metrics", icon: "fas fa-chart-line" },
+    { id: "utility" as const, label: "Utility", icon: "fas fa-tools" },
   ];
 
   return (
@@ -59,6 +61,7 @@ export default function Dashboard() {
             {activeTab === "rest" && <RestExplorer />}
             {activeTab === "graphql" && <GraphQLPlayground />}
             {activeTab === "metrics" && <PerformanceMetrics />}
+            {activeTab === "utility" && <UtilitySection />}
           </div>
         </div>
       </div>
