@@ -156,6 +156,28 @@ npm run build
 npm run start
 ```
 
+### Netlify Deployment
+
+This project is configured for seamless deployment on Netlify with serverless functions:
+
+1. **Connect your repository** to Netlify
+2. **Build settings** are automatically configured via `netlify.toml`
+3. **Environment variables** can be set in Netlify dashboard under Site settings → Environment variables
+
+#### Required Environment Variables for Netlify:
+
+```env
+NODE_ENV=production
+DATABASE_URL=postgresql://...
+```
+
+The `netlify.toml` configuration handles:
+- Automatic builds with `npm run build`
+- Serverless function routing for `/api/*` endpoints
+- GraphQL endpoint routing for `/graphql`
+- SPA routing with fallback to `index.html`
+- CORS headers for API endpoints
+
 ### Environment Variables
 
 Required environment variables for production:
