@@ -21,34 +21,40 @@ export default function UtilitySection() {
 
   const utilityEndpoints: UtilityEndpoint[] = [
     {
-      path: '/api/autocurd-health',
-      description: 'Check autocrud service health status',
+      path: '/api/user',
+      description: 'Get all users in the system',
       method: 'GET',
       format: 'json'
     },
     {
-      path: '/api/autocurd-info',
-      description: 'Get autocrud version and configuration summary',
+      path: '/api/product',
+      description: 'Get all products in the system',
       method: 'GET',
       format: 'json'
     },
     {
-      path: '/api/autocurd-list',
-      description: 'List all available REST and GraphQL endpoints',
+      path: '/api/order',
+      description: 'Get all orders in the system',
       method: 'GET',
       format: 'json'
     },
     {
-      path: '/api/autocurd-openapi.json',
-      description: 'Get OpenAPI 3.0 specification for REST endpoints',
+      path: '/api/schema',
+      description: 'Get all schema definitions',
       method: 'GET',
-      format: 'openapi'
+      format: 'json'
     },
     {
-      path: '/api/autocurd-sdl',
-      description: 'Get GraphQL Schema Definition Language',
+      path: '/api/metric',
+      description: 'Get system metrics and performance data',
       method: 'GET',
-      format: 'text'
+      format: 'json'
+    },
+    {
+      path: '/graphql',
+      description: 'GraphQL endpoint for complex queries',
+      method: 'POST',
+      format: 'json'
     }
   ];
 
