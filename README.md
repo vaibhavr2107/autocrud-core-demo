@@ -235,4 +235,11 @@ This project is licensed under the Apache-2.0 License - see the [LICENSE](LICENS
 
 ---
 
+Got it! Here’s how you could phrase that as a prompt to an LLM:
+
+⸻
+
+Prompt:
+“Create a new agent called the ‘ProjectTemplateGeneratorAgent’ that will handle all the project directory setup after the OpenAPI generator agent has created the OAS spec. This new agent should take the generated OAS folder and update the project template. Specifically, it should download a Spring Boot template from Nexus, which includes a main pom.xml, an API module pom.xml, and an OAS module pom.xml. The agent should then update the OAS folder in the template with the generated spec, adjust the pom.xml files to set the artifact and group IDs based on the service name, and rename the modules accordingly (e.g., service-name-parent, service-name-api, and service-name-oas-gen). Finally, the agent should run a Maven clean install. This ‘ProjectTemplateGeneratorAgent’ will be invoked in the main LangGraph node function after the OpenAPI generator agent is done.”
+
 For more information about the AutoCRUD Core library, visit the [official documentation](https://www.npmjs.com/package/autocrud-core) or check out the [GitHub repository](https://github.com/vaibhavr2107/autocrud).
